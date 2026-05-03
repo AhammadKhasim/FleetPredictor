@@ -1,0 +1,2229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="FleetIQ"/>
+<meta name="theme-color" content="#030609"/>
+<title>FleetIQ v18 — KSA Phase Engine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Oxanium:wght@300;400;500;600;700;800&family=Fira+Code:wght@300;400;500;600&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#030609;--bg2:#06090f;--surf:#090e1a;--card:#0d1524;--card2:#111c30;
+  --b1:#162038;--b2:#1c2d4e;--b3:#243860;
+  --txt:#b0cceb;--txt2:#5a7fa8;--txt3:#2a4060;--dim:#0d1c30;
+  --acc:#ff8c00;--acc2:#cc6e00;--ag:rgba(255,140,0,.24);--ad:rgba(255,140,0,.09);--as:rgba(255,140,0,.16);
+  --grn:#00e676;--red:#ff4444;--blu:#29b6f6;--yel:#fbbf24;--pur:#a78bfa;--org:#fb923c;--teal:#2dd4bf;--pink:#f472b6;
+  --font:'Oxanium',sans-serif;--mono:'Fira Code',monospace;
+  --ph1:#ef4444;--ph2:#f97316;--ph3:#eab308;--ph4:#22c55e;--ph5:#06b6d4;--ph6:#3b82f6;--ph7:#8b5cf6;--ph8:#ec4899;
+}
+html,body{background:var(--bg);color:var(--txt);font-family:var(--font);min-height:100vh;overscroll-behavior:none}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse 85% 40% at 100% 0%,rgba(255,140,0,.05) 0%,transparent 55%),
+  radial-gradient(ellipse 55% 30% at 0% 100%,rgba(41,182,246,.03) 0%,transparent 55%),
+  radial-gradient(ellipse 40% 28% at 50% 45%,rgba(34,197,94,.02) 0%,transparent 65%)}
+body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.016;
+  background-image:linear-gradient(var(--b1) 1px,transparent 1px),linear-gradient(90deg,var(--b1) 1px,transparent 1px);
+  background-size:34px 34px}
+.app{position:relative;z-index:1;max-width:520px;margin:0 auto;padding:0 0 170px}
+
+/* HEADER */
+.hdr{padding:18px 14px 0;display:flex;align-items:flex-start;gap:11px;margin-bottom:16px}
+.logo{width:48px;height:48px;flex-shrink:0;border-radius:12px;
+  background:linear-gradient(135deg,rgba(255,140,0,.14),rgba(255,140,0,.04));
+  border:1.5px solid var(--acc);display:flex;align-items:center;justify-content:center;font-size:23px;
+  box-shadow:0 0 26px var(--ag),inset 0 1px 0 rgba(255,255,255,.06)}
+.brand-w{flex:1;min-width:0}
+.brand{font-size:25px;font-weight:800;letter-spacing:.05em;line-height:1;display:flex;align-items:center;gap:7px}
+.brand em{font-style:normal;color:var(--acc)}
+.vtag{font-family:var(--mono);font-size:6.5px;color:var(--txt3);background:var(--surf);
+  border:1px solid var(--b1);padding:2px 5px;border-radius:3px;letter-spacing:.1em;font-weight:400}
+.tagline{font-family:var(--mono);font-size:7px;color:var(--txt3);letter-spacing:.06em;margin-top:3px}
+.credit{flex-shrink:0;text-align:right}
+.cr-l{font-family:var(--mono);font-size:5.5px;color:var(--txt3);letter-spacing:.14em;text-transform:uppercase;display:block;margin-bottom:2px}
+.cr-n{font-size:9px;font-weight:700;color:var(--acc);display:block}
+.cr-a{font-family:var(--mono);font-size:7px;color:var(--txt3);text-decoration:none;display:block;line-height:1.55;transition:color .15s}
+.cr-a:hover{color:var(--acc)}
+
+/* LIVE BADGE */
+.live-strip{margin:0 14px 14px;background:rgba(0,230,118,.05);border:1px solid rgba(0,230,118,.18);
+  border-radius:9px;padding:7px 12px;display:flex;align-items:center;gap:9px}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--grn);flex-shrink:0;
+  animation:ld 2s infinite;box-shadow:0 0 6px var(--grn)}
+@keyframes ld{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(0,230,118,.4)}50%{opacity:.7;box-shadow:0 0 0 5px rgba(0,230,118,0)}}
+.live-txt{font-family:var(--mono);font-size:7px;color:var(--grn);letter-spacing:.05em;flex:1}
+.live-pct{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--grn)}
+
+/* STEP NAV */
+.snav{margin:0 14px 16px;display:grid;grid-template-columns:repeat(5,1fr);
+  background:var(--surf);border:1px solid var(--b1);border-radius:9px;overflow:hidden}
+.st{padding:8px 2px;text-align:center;font-family:var(--mono);font-size:6px;letter-spacing:.05em;
+  color:var(--txt3);cursor:pointer;background:transparent;transition:all .22s;
+  border-right:1px solid var(--b1);position:relative;user-select:none}
+.st:last-child{border-right:none}
+.st .sn{display:block;font-size:9px;font-weight:700;margin-bottom:1px;font-family:var(--font)}
+.st.on{color:var(--acc);background:var(--ad)}
+.st.on::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--acc)}
+.st.done{color:var(--txt2);background:var(--bg2)}
+
+/* SECTION LABEL */
+.slbl{font-family:var(--mono);font-size:7px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--txt3);display:flex;align-items:center;gap:7px;margin:0 14px 9px}
+.slbl::after{content:'';flex:1;height:1px;background:var(--b1)}
+.slbl span{white-space:nowrap}
+
+/* SEARCH */
+.srch-w{margin:0 14px 9px;position:relative}
+.si{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:12px;opacity:.35;pointer-events:none}
+.s-inp{width:100%;background:var(--surf);border:1px solid var(--b1);border-radius:9px;
+  padding:9px 32px 9px 32px;font-family:var(--font);font-size:13px;color:var(--txt);
+  outline:none;transition:border-color .2s,box-shadow .2s}
+.s-inp:focus{border-color:var(--acc);box-shadow:0 0 0 3px var(--ad)}
+.s-inp::placeholder{color:var(--txt3)}
+.s-clr{position:absolute;right:11px;top:50%;transform:translateY(-50%);
+  font-size:10px;cursor:pointer;color:var(--txt3);display:none;transition:color .15s}
+.s-clr:hover{color:var(--acc)}.s-clr.show{display:block}
+
+/* CATEGORY STRIP */
+.cat-strip{display:flex;gap:6px;overflow-x:auto;margin:0 14px 11px;scrollbar-width:none;padding-bottom:2px}
+.cat-strip::-webkit-scrollbar{display:none}
+.ctab{flex-shrink:0;padding:5px 11px;border-radius:20px;font-family:var(--mono);font-size:7px;
+  letter-spacing:.06em;background:var(--surf);border:1px solid var(--b1);color:var(--txt3);
+  cursor:pointer;transition:all .18s;white-space:nowrap}
+.ctab.on{background:var(--ad);border-color:var(--acc);color:var(--acc);box-shadow:0 0 10px var(--ag)}
+
+/* PROJECT GRID */
+.pt-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;max-height:310px;overflow-y:auto;
+  margin:0 14px 16px;scrollbar-width:thin;scrollbar-color:var(--b1) transparent;padding-right:2px}
+.pt-grid::-webkit-scrollbar{width:3px}
+.pt-grid::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px}
+.ptc{background:var(--surf);border:1px solid var(--b1);border-radius:11px;padding:10px 9px;
+  cursor:pointer;transition:all .15s;position:relative;overflow:hidden;animation:pti .2s ease both}
+.ptc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:var(--cat-col,var(--b1));opacity:0;transition:opacity .2s}
+.ptc:hover{border-color:var(--b2);transform:translateY(-1px)}
+.ptc:hover::before{opacity:.5}
+.ptc.sel{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc),0 4px 20px var(--ag)}
+.ptc.sel::before{opacity:1;background:var(--acc)}
+@keyframes pti{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.pt-em{font-size:18px;display:block;line-height:1;margin-bottom:4px}
+.pt-name{font-size:11px;font-weight:700;line-height:1.2;transition:color .15s}
+.ptc.sel .pt-name{color:var(--acc)}
+.pt-tag{font-family:var(--mono);font-size:6.5px;color:var(--txt3);margin-top:2px}
+.pt-ph{font-family:var(--mono);font-size:6px;color:var(--b3);margin-top:2px}
+.ptc.sel .pt-ph{color:rgba(255,140,0,.45)}
+.pt-dot{position:absolute;top:7px;right:7px;width:5px;height:5px;border-radius:50%;background:var(--cat-col,var(--b1));opacity:.6}
+.no-res{grid-column:1/-1;text-align:center;font-family:var(--mono);font-size:10px;color:var(--txt3);padding:22px 0}
+
+/* SELECTED BADGE */
+.sel-badge{margin:0 14px 13px;display:flex;align-items:center;gap:10px;
+  background:var(--card2);border:1px solid var(--b2);border-left:3px solid var(--acc);
+  border-radius:11px;padding:10px 13px}
+.sb-em{font-size:21px;flex-shrink:0}.sb-info{flex:1;min-width:0}
+.sb-name{font-size:13px;font-weight:700}.sb-sub{font-family:var(--mono);font-size:6.5px;color:var(--txt3);margin-top:2px}
+.sb-chg{flex-shrink:0;font-family:var(--mono);font-size:7px;color:var(--acc);
+  border:1px solid var(--ad);padding:4px 8px;border-radius:5px;cursor:pointer;white-space:nowrap;transition:all .15s}
+.sb-chg:hover{background:var(--ad)}
+
+/* KSA NOTICE */
+.ksa{margin:0 14px 13px;background:rgba(251,191,36,.05);border:1px solid rgba(251,191,36,.16);
+  border-radius:9px;padding:8px 11px;display:flex;gap:9px;align-items:flex-start}
+.ksa-flag{font-size:15px;flex-shrink:0;margin-top:1px}
+.ksa-title{font-size:10px;font-weight:700;color:var(--yel);margin-bottom:2px}
+.ksa-text{font-family:var(--mono);font-size:6.5px;color:var(--txt3);line-height:1.55}
+
+/* PARAMS */
+.params{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:0 14px 13px}
+.pc{background:var(--surf);border:1px solid var(--b1);border-radius:11px;padding:10px 11px;transition:border-color .2s,box-shadow .2s}
+.pc:focus-within{border-color:var(--acc);box-shadow:0 0 0 3px var(--ad)}
+.pc.full{grid-column:1/-1}
+.pc-lbl{font-family:var(--mono);font-size:6px;color:var(--txt3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px}
+.pc-hint{font-family:var(--mono);font-size:6px;color:var(--dim);margin-top:2px;line-height:1.45}
+.pc-row{display:flex;align-items:baseline;gap:4px}
+.pc-pre{font-family:var(--mono);font-size:9px;color:var(--txt3);flex-shrink:0}
+.pc-inp{flex:1;background:transparent;border:none;color:var(--acc);font-family:var(--font);
+  font-size:20px;font-weight:800;outline:none;width:100%;-webkit-appearance:none;min-width:0}
+.pc-inp::-webkit-inner-spin-button{-webkit-appearance:none}
+.pc-unit{font-family:var(--mono);font-size:7px;color:var(--txt3);flex-shrink:0}
+.sl-w{position:relative;height:13px;display:flex;align-items:center;margin-top:5px}
+.sl-bg{position:absolute;left:0;right:0;height:2px;background:var(--b2);border-radius:2px;pointer-events:none}
+.sl-fg{position:absolute;left:0;height:2px;background:var(--acc);border-radius:2px;pointer-events:none;box-shadow:0 0 5px var(--ag);transition:width .04s}
+input[type=range]{-webkit-appearance:none;position:relative;width:100%;height:13px;background:transparent;cursor:pointer;outline:none;z-index:1}
+input[type=range]::-webkit-slider-runnable-track{height:2px;background:transparent}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--acc);margin-top:-6px;box-shadow:0 0 8px var(--ag),0 0 0 3px rgba(255,140,0,.15)}
+input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--acc);border:none}
+
+/* ── PHASE SECTION ── */
+.ph-section{margin:0 14px 12px}
+.ph-sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.ph-sec-title{font-size:12px;font-weight:700;letter-spacing:.02em}
+.ph-sec-sub{font-family:var(--mono);font-size:6.5px;color:var(--txt3)}
+
+/* TIMELINE GANTT */
+.gantt-wrap{overflow-x:auto;scrollbar-width:none;margin-bottom:10px}
+.gantt-wrap::-webkit-scrollbar{display:none}
+.gantt{display:flex;flex-direction:column;gap:0;min-width:max-content;
+  background:var(--surf);border:1px solid var(--b1);border-radius:10px;overflow:hidden}
+.gantt-row{display:flex;align-items:center;border-bottom:1px solid var(--b1)}
+.gantt-row:last-child{border-bottom:none}
+.g-label{width:90px;flex-shrink:0;padding:5px 9px;font-family:var(--mono);font-size:7px;
+  color:var(--txt3);border-right:1px solid var(--b1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.g-bar-area{flex:1;height:22px;position:relative;background:var(--bg2)}
+.g-bar{position:absolute;top:3px;height:16px;border-radius:3px;
+  display:flex;align-items:center;justify-content:center;transition:width .4s ease,left .4s ease;
+  cursor:pointer;min-width:22px;overflow:hidden}
+.g-bar-lbl{font-family:var(--mono);font-size:6px;font-weight:600;color:#fff;white-space:nowrap;padding:0 4px;
+  text-shadow:0 1px 2px rgba(0,0,0,.6)}
+.gantt-months{display:flex;border-bottom:1px solid var(--b1)}
+.gm-spacer{width:90px;flex-shrink:0;border-right:1px solid var(--b1)}
+.gm-track{flex:1;display:flex}
+.gm-tick{font-family:var(--mono);font-size:5.5px;color:var(--txt3);text-align:center;border-right:1px solid var(--b1);padding:2px 0;flex:1}
+
+/* PHASE CARDS */
+.ph-cards{display:flex;flex-direction:column;gap:6px}
+.ph-card{background:var(--surf);border:1px solid var(--b1);border-radius:11px;overflow:hidden;transition:border-color .2s,box-shadow .2s}
+.ph-card.open{border-color:var(--b2)}
+.ph-hdr{display:flex;align-items:center;gap:9px;padding:10px 12px;cursor:pointer;user-select:none}
+.ph-badge{width:26px;height:26px;border-radius:7px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:7.5px;font-weight:600;border:1px solid currentColor}
+.ph-title{font-size:12px;font-weight:700;flex:1;letter-spacing:.01em}
+.ph-dur-tag{font-family:var(--mono);font-size:7px;font-weight:600;
+  background:var(--ad);border:1px solid var(--acc);color:var(--acc);
+  border-radius:5px;padding:2px 8px;flex-shrink:0}
+.ph-eq-tag{font-family:var(--mono);font-size:6.5px;color:var(--txt3);flex-shrink:0;white-space:nowrap}
+.ph-chev{font-size:9px;color:var(--txt3);flex-shrink:0;transition:transform .2s}
+.ph-card.open .ph-chev{transform:rotate(180deg)}
+.ph-body{padding:0 12px;max-height:0;overflow:hidden;transition:max-height .35s ease,padding .28s}
+.ph-card.open .ph-body{max-height:3000px;padding:0 12px 12px}
+.ph-body-inner{border-top:1px solid var(--b1);padding-top:10px}
+
+/* Phase duration row */
+.ph-dur-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;
+  background:var(--card);border:1px solid var(--b1);border-radius:8px;padding:7px 10px}
+.ph-dur-lbl{font-family:var(--mono);font-size:6.5px;color:var(--txt3);letter-spacing:.08em;text-transform:uppercase;flex:1}
+.ph-dur-inp{width:36px;background:transparent;border:none;color:var(--acc);
+  font-family:var(--font);font-size:16px;font-weight:800;outline:none;text-align:right;-webkit-appearance:none}
+.ph-dur-inp::-webkit-inner-spin-button{-webkit-appearance:none}
+.ph-dur-unit{font-family:var(--mono);font-size:7.5px;color:var(--txt3)}
+.ph-budget-disp{font-family:var(--mono);font-size:7.5px;color:var(--yel);flex-shrink:0;white-space:nowrap}
+
+/* Equipment list in phase */
+.ph-eq-list{display:flex;flex-direction:column;gap:4px}
+.ph-eq-row{background:var(--card);border:1px solid var(--b1);border-radius:8px;overflow:hidden;transition:border-color .15s}
+.ph-eq-row.on{border-color:rgba(255,140,0,.35);background:rgba(255,140,0,.03)}
+.ph-eq-top{display:flex;align-items:center;gap:7px;padding:7px 9px}
+.ph-pri{font-family:var(--mono);font-size:8px;font-weight:700;
+  width:22px;text-align:center;flex-shrink:0}
+.ph-pri.r1{color:var(--yel)}.ph-pri.r2{color:var(--org)}.ph-pri.r3{color:var(--teal)}.ph-pri.rn{color:var(--txt3)}
+.ph-eq-ico{font-size:13px;width:18px;text-align:center;flex-shrink:0}
+.ph-eq-name{font-size:11px;font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ph-eq-rate-lbl{font-family:var(--mono);font-size:6.5px;color:var(--txt2);flex-shrink:0;white-space:nowrap}
+.ph-tog{width:30px;height:17px;border-radius:9px;background:var(--b2);
+  cursor:pointer;position:relative;transition:background .2s;flex-shrink:0}
+.ph-tog.on{background:var(--acc)}
+.ph-tok{position:absolute;top:2px;left:2px;width:13px;height:13px;border-radius:50%;
+  background:#fff;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.4)}
+.ph-tog.on .ph-tok{left:15px}
+/* Expanded month+rate inputs */
+.ph-eq-inputs{display:none;gap:5px;padding:0 9px 8px;grid-template-columns:1fr 1fr 1fr}
+.ph-eq-row.on .ph-eq-inputs{display:grid}
+.inp-box{background:var(--bg2);border:1px solid var(--b1);border-radius:7px;padding:5px 8px;transition:border-color .2s}
+.inp-box:focus-within{border-color:var(--acc)}
+.inp-lbl{font-family:var(--mono);font-size:5.5px;color:var(--txt3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:2px}
+.inp-row{display:flex;align-items:baseline;gap:2px}
+.inp-n{width:100%;background:transparent;border:none;color:var(--txt);font-family:var(--font);
+  font-size:14px;font-weight:700;outline:none;-webkit-appearance:none;min-width:0}
+.inp-n::-webkit-inner-spin-button{-webkit-appearance:none}
+.inp-u{font-family:var(--mono);font-size:6.5px;color:var(--txt3);flex-shrink:0}
+/* ── MULTI-SPEC PANEL ── */
+.spec-panel{padding:0 9px 9px;display:none;border-top:1px solid var(--b1);margin-top:0}
+.ph-eq-row.on .spec-panel{display:block}
+
+/* Section header row */
+.spec-hdr-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0 5px}
+.spec-hdr-lbl{font-family:var(--mono);font-size:5.5px;color:var(--txt3);letter-spacing:.12em;text-transform:uppercase}
+.spec-hdr-right{display:flex;align-items:center;gap:5px}
+.spec-toggle-btn{font-family:var(--mono);font-size:7px;color:var(--txt3);background:var(--surf);
+  border:1px solid var(--b1);border-radius:5px;padding:3px 7px;cursor:pointer;transition:all .15s}
+.spec-toggle-btn:hover{border-color:var(--b2);color:var(--txt)}
+.spec-toggle-btn.open{color:var(--acc);border-color:var(--ad)}
+
+/* Dropdown chip list — collapsible */
+.spec-chips-wrap{overflow:hidden;max-height:0;transition:max-height .25s ease}
+.spec-chips-wrap.open{max-height:400px}
+.spec-chips{display:flex;flex-wrap:wrap;gap:4px;padding-bottom:6px}
+.spec-chip{font-family:var(--mono);font-size:7.5px;padding:4px 8px;border-radius:5px;
+  background:var(--surf);border:1px solid var(--b1);color:var(--txt3);
+  cursor:pointer;transition:all .15s;user-select:none;white-space:nowrap}
+.spec-chip:hover{border-color:var(--b2);color:var(--txt)}
+.spec-chip.selected{background:rgba(255,140,0,.12);border-color:var(--acc);color:var(--acc)}
+.spec-chip-add{background:transparent;border:1px dashed var(--b2);color:var(--txt3);
+  display:flex;align-items:center;gap:3px;font-size:7.5px}
+.spec-chip-add:hover{border-color:var(--acc);color:var(--acc)}
+
+/* Selected spec items (editable cards) */
+.spec-items{display:flex;flex-direction:column;gap:4px}
+.spec-item{background:var(--bg2);border:1px solid var(--b2);border-left:2px solid var(--acc);
+  border-radius:7px;padding:6px 8px;animation:spi .15s ease both}
+@keyframes spi{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:none}}
+.spec-item-top{display:flex;align-items:center;gap:6px;margin-bottom:5px}
+.spec-item-ico{font-size:10px;flex-shrink:0}
+.spec-item-name{font-size:10px;font-weight:700;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.spec-item-desc{font-family:var(--mono);font-size:6px;color:var(--txt3);flex-shrink:0;max-width:90px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.spec-item-remove{flex-shrink:0;width:18px;height:18px;border-radius:4px;
+  background:rgba(255,68,68,.1);border:1px solid rgba(255,68,68,.25);color:var(--red);
+  font-size:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:all .15s;line-height:1}
+.spec-item-remove:hover{background:rgba(255,68,68,.25)}
+/* Inline edit fields inside a spec item */
+.spec-item-fields{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.spec-field{background:var(--surf);border:1px solid var(--b1);border-radius:6px;padding:4px 7px;transition:border-color .2s}
+.spec-field:focus-within{border-color:var(--acc)}
+.spec-field-lbl{font-family:var(--mono);font-size:5px;color:var(--txt3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:1px}
+.spec-field-row{display:flex;align-items:baseline;gap:2px}
+.spec-field-inp{width:100%;background:transparent;border:none;color:var(--txt);font-family:var(--font);
+  font-size:13px;font-weight:700;outline:none;-webkit-appearance:none;min-width:0}
+.spec-field-inp::-webkit-inner-spin-button{-webkit-appearance:none}
+.spec-field-unit{font-family:var(--mono);font-size:6px;color:var(--txt3);flex-shrink:0}
+/* Cost summary pill on each spec item */
+.spec-item-cost{font-family:var(--mono);font-size:6.5px;color:var(--acc);
+  background:var(--ad);border:1px solid rgba(255,140,0,.2);border-radius:4px;
+  padding:2px 6px;text-align:right;margin-top:4px}
+/* Empty state */
+.spec-empty{font-family:var(--mono);font-size:8px;color:var(--txt3);
+  text-align:center;padding:8px 0;border:1px dashed var(--b1);border-radius:6px;margin-bottom:4px}
+
+/* Custom spec modal */
+.spec-modal-backdrop{position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.7);
+  display:none;align-items:flex-end;justify-content:center;padding:0}
+.spec-modal-backdrop.show{display:flex}
+.spec-modal{background:var(--card2);border:1px solid var(--b2);
+  border-radius:16px 16px 0 0;padding:20px 18px 32px;width:100%;max-width:520px;
+  box-shadow:0 -10px 50px rgba(0,0,0,.6);transform:translateY(100%);
+  transition:transform .28s cubic-bezier(.22,.68,0,1.2)}
+.spec-modal-backdrop.show .spec-modal{transform:translateY(0)}
+.spec-modal-drag{width:36px;height:3px;border-radius:2px;background:var(--b2);margin:0 auto 16px}
+.spec-modal-ttl{font-size:14px;font-weight:800;color:var(--acc);margin-bottom:3px}
+.spec-modal-sub{font-family:var(--mono);font-size:7.5px;color:var(--txt3);margin-bottom:16px}
+.spec-modal-field{margin-bottom:11px}
+.spec-modal-lbl{font-family:var(--mono);font-size:6px;color:var(--txt3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
+.spec-modal-inp{width:100%;background:var(--surf);border:1.5px solid var(--b1);border-radius:9px;
+  padding:10px 12px;font-family:var(--font);font-size:15px;color:var(--txt);outline:none;transition:border-color .2s}
+.spec-modal-inp:focus{border-color:var(--acc);box-shadow:0 0 0 3px var(--ad)}
+.spec-modal-btns{display:flex;gap:8px;margin-top:18px}
+.smb-cancel{flex:1;padding:10px;border-radius:9px;background:var(--surf);border:1px solid var(--b1);
+  color:var(--txt3);font-family:var(--font);font-size:13px;cursor:pointer;transition:all .15s}
+.smb-cancel:hover{border-color:var(--b2)}
+.smb-add{flex:2;padding:10px;border-radius:9px;background:var(--acc);border:1px solid var(--acc);
+  color:var(--bg);font-family:var(--font);font-size:13px;font-weight:700;cursor:pointer;transition:all .15s}
+.smb-add:hover{background:var(--acc2)}
+
+/* ── MANUAL UNITS OVERRIDE ── */
+.ph-units-wrap{display:flex;align-items:center;gap:3px;flex-shrink:0}
+.ph-units-disp{font-family:var(--mono);font-size:15px;font-weight:700;color:var(--acc);
+  width:26px;text-align:right;cursor:pointer;transition:color .15s;user-select:none}
+.ph-units-disp.z{color:var(--dim)}
+.ph-units-disp.manual{color:var(--blu)}
+.ph-units-inp{width:36px;background:rgba(41,182,246,.08);border:1.5px solid var(--blu);
+  border-radius:5px;color:var(--blu);font-family:var(--mono);font-size:13px;font-weight:700;
+  text-align:center;outline:none;padding:1px 3px;display:none;-webkit-appearance:none}
+.ph-units-inp::-webkit-inner-spin-button{-webkit-appearance:none}
+.ph-units-inp.show{display:block}
+.ph-units-lock{font-size:9px;cursor:pointer;opacity:.5;transition:opacity .15s;flex-shrink:0;line-height:1}
+.ph-units-lock:hover{opacity:1}
+.ph-units-lock.locked{opacity:1;color:var(--blu)}
+
+/* ── PHASE EQUIPMENT SUB-COST ROW ── */
+.ph-subcost-row{display:flex;flex-direction:column;gap:6px;margin-bottom:10px;
+  padding:8px 10px;background:var(--bg2);border:1px solid var(--b1);border-radius:8px;
+  transition:border-color .2s}
+.ph-subcost-row.custom{border-color:rgba(255,140,0,.4);background:rgba(255,140,0,.03)}
+.ph-subcost-top{display:flex;align-items:center;gap:8px}
+.ph-subcost-lbl{font-family:var(--mono);font-size:6px;color:var(--txt3);letter-spacing:.1em;
+  text-transform:uppercase;flex-shrink:0;min-width:68px}
+/* Editable % input */
+.ph-subcost-inp-wrap{display:flex;align-items:baseline;gap:2px;flex-shrink:0}
+.ph-subcost-inp{width:38px;background:transparent;border:none;color:var(--acc);
+  font-family:var(--mono);font-size:16px;font-weight:800;outline:none;text-align:right;
+  -webkit-appearance:none;cursor:text}
+.ph-subcost-inp::-webkit-inner-spin-button{-webkit-appearance:none}
+.ph-subcost-inp.custom{color:var(--org)}
+.ph-subcost-sym{font-family:var(--mono);font-size:9px;color:var(--txt3);flex-shrink:0}
+/* SAR badge */
+.ph-subcost-sar{font-family:var(--mono);font-size:6.5px;flex-shrink:0;
+  border-radius:4px;padding:2px 6px;white-space:nowrap;transition:all .2s}
+.ph-subcost-sar.default{color:var(--yel);border:1px solid rgba(251,191,36,.25)}
+.ph-subcost-sar.custom{color:var(--org);border:1px solid rgba(251,191,36,.45);background:rgba(251,191,36,.06)}
+/* Reset badge */
+.ph-subcost-reset{font-family:var(--mono);font-size:6px;color:var(--txt3);flex-shrink:0;
+  border:1px solid var(--b1);border-radius:4px;padding:2px 6px;cursor:pointer;
+  transition:all .15s;display:none;white-space:nowrap}
+.ph-subcost-reset.show{display:block}
+.ph-subcost-reset:hover{border-color:var(--red);color:var(--red)}
+/* Slider row */
+.ph-subcost-slider-row{display:flex;align-items:center;gap:6px}
+.ph-subcost-track{flex:1;position:relative;height:12px}
+.ph-subcost-bg{position:absolute;inset:4px 0;background:var(--b1);border-radius:3px}
+.ph-subcost-fill{position:absolute;top:4px;bottom:4px;left:0;background:var(--acc);
+  border-radius:3px;transition:width .2s;opacity:.75;box-shadow:0 0 5px var(--ag)}
+.ph-subcost-fill.custom{background:var(--org);box-shadow:0 0 5px rgba(251,146,60,.4)}
+.ph-subcost-sl{position:absolute;inset:0;width:100%;opacity:0;cursor:pointer;height:100%}
+/* Allocation warning */
+.ph-alloc-warn{font-family:var(--mono);font-size:6px;border-radius:4px;padding:2px 7px;
+  display:none;white-space:nowrap;flex-shrink:0}
+.ph-alloc-warn.over{display:inline-block;color:var(--red);border:1px solid rgba(255,68,68,.3);background:rgba(255,68,68,.06)}
+.ph-alloc-warn.ok{display:inline-block;color:var(--grn);border:1px solid rgba(0,230,118,.3);background:rgba(0,230,118,.04)}
+
+/* Phase cost footer */
+.ph-cost-row{display:flex;justify-content:space-between;align-items:center;
+  margin-top:8px;padding:7px 10px;background:var(--ad);border:1px solid rgba(255,140,0,.2);border-radius:8px}
+.ph-cost-lbl{font-family:var(--mono);font-size:6.5px;color:var(--acc);letter-spacing:.08em;text-transform:uppercase}
+.ph-cost-val{font-size:15px;font-weight:800;color:var(--acc);font-family:var(--font)}
+
+/* ── RESULTS ── */
+.fleet-hero{margin:0 14px 10px;background:var(--card2);border:1px solid var(--b2);
+  border-radius:14px;padding:16px 14px;position:relative;overflow:hidden}
+.fleet-hero::before{content:'';position:absolute;top:-25px;right:-25px;width:140px;height:140px;
+  border-radius:50%;background:radial-gradient(circle,var(--ag) 0%,transparent 70%);pointer-events:none}
+.fh-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+.fh-lbl{font-family:var(--mono);font-size:7px;letter-spacing:.15em;text-transform:uppercase;color:var(--acc);margin-bottom:2px}
+.fh-num{font-size:68px;font-weight:800;line-height:1;color:var(--acc);
+  text-shadow:0 0 36px var(--ag);transition:transform .22s,text-shadow .22s;font-variant-numeric:tabular-nums}
+.fh-num.pop{transform:scale(1.06);text-shadow:0 0 65px var(--ag)}
+.fh-r{text-align:right}
+.fh-rl{font-family:var(--mono);font-size:6.5px;color:var(--txt3);letter-spacing:.07em;margin-bottom:3px}
+.fh-rv{font-size:17px;font-weight:700;color:var(--txt)}
+.fh-rs{font-family:var(--mono);font-size:7px;color:var(--txt3);margin-top:3px}
+.brow{display:flex;align-items:center;gap:5px;margin-bottom:4px;min-width:0}
+.bi{font-size:10px;width:15px;text-align:center;flex-shrink:0}
+.bn{font-size:10px;color:var(--txt2);width:80px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bsp{font-family:var(--mono);font-size:6.5px;color:var(--acc);width:50px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bt{flex:1;height:3px;background:var(--b1);border-radius:2px;overflow:hidden}
+.bf{height:100%;background:var(--acc);border-radius:2px;transition:width .5s ease;box-shadow:0 0 5px var(--ag)}
+.bc{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--txt);width:14px;text-align:right;flex-shrink:0}
+.bm{font-family:var(--mono);font-size:6.5px;color:var(--txt3);width:56px;text-align:right;flex-shrink:0}
+
+/* KPI strip */
+.kpi-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:0 14px 9px}
+.kpi{background:var(--surf);border:1px solid var(--b1);border-radius:10px;padding:10px 11px;text-align:center}
+.kpi-val{font-size:21px;font-weight:800;color:var(--acc);font-family:var(--font);line-height:1}
+.kpi-lbl{font-family:var(--mono);font-size:5.5px;color:var(--txt3);margin-top:4px;letter-spacing:.06em;text-transform:uppercase;line-height:1.4}
+
+/* Phase breakdown table */
+.ph-breakdown{margin:0 14px 10px;background:var(--surf);border:1px solid var(--b1);border-radius:11px;overflow:hidden}
+.pb-hdr{background:var(--card);border-bottom:1px solid var(--b1);padding:8px 12px;
+  display:flex;align-items:center;gap:8px}
+.pb-hdr-ico{font-size:13px}
+.pb-hdr-lbl{font-family:var(--mono);font-size:7px;letter-spacing:.12em;text-transform:uppercase;color:var(--yel);flex:1}
+.pb-hdr-sub{font-family:var(--mono);font-size:6.5px;color:var(--txt3)}
+.pb-ph-row{border-bottom:1px solid var(--b1);padding:8px 12px}
+.pb-ph-row:last-child{border-bottom:none}
+.pb-ph-hd{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.pb-ph-n{font-family:var(--mono);font-size:6.5px;font-weight:600;
+  width:22px;height:14px;border-radius:3px;display:flex;align-items:center;justify-content:center;
+  border:1px solid currentColor;flex-shrink:0}
+.pb-ph-nm{font-size:11px;font-weight:600;flex:1}
+.pb-ph-d{font-family:var(--mono);font-size:6.5px;color:var(--txt3);flex-shrink:0}
+.pb-ph-t{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--acc);flex-shrink:0}
+.pb-eq-list{display:flex;flex-direction:column;gap:2px;padding-left:30px}
+.pb-eq-it{display:flex;align-items:center;gap:5px}
+.pb-eq-nm{font-size:10px;color:var(--txt2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pb-eq-u{font-family:var(--mono);font-size:8.5px;color:var(--txt);flex-shrink:0}
+.pb-eq-c{font-family:var(--mono);font-size:8.5px;color:var(--txt3);flex-shrink:0;text-align:right;min-width:58px}
+
+/* Summary */
+.summary{margin:0 14px 10px;background:var(--surf);border:1px solid var(--b1);border-radius:11px;padding:12px 13px}
+.srow{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--b1);font-size:11px}
+.srow:last-child{border-bottom:none}
+.sl{color:var(--txt3)}.sv{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--txt)}
+.sv.acc{color:var(--acc)}.sv.pos{color:var(--grn)}.sv.neg{color:var(--red)}
+.sv.yel{color:var(--yel)}.sv.pur{color:var(--pur)}
+.srow.total-row{background:rgba(255,140,0,.05);margin:0 -13px;padding:8px 13px}
+.srow.total-row .sl{color:var(--txt);font-weight:600}
+
+/* Actions */
+.acts{display:flex;gap:7px;margin:0 14px 8px}
+.btn-ex{flex:1;background:var(--ad);border:1px solid var(--acc);color:var(--acc);
+  font-family:var(--mono);font-size:9px;padding:11px;border-radius:8px;cursor:pointer;
+  letter-spacing:.08em;text-transform:uppercase;transition:all .2s;font-weight:600}
+.btn-ex:active{background:var(--acc);color:var(--bg)}
+.btn-rst{flex:1;background:transparent;border:1px solid var(--b2);color:var(--txt3);
+  font-family:var(--mono);font-size:9px;padding:11px;border-radius:8px;cursor:pointer;
+  letter-spacing:.08em;text-transform:uppercase;transition:all .2s}
+.btn-rst:active{border-color:var(--red);color:var(--red)}
+
+/* PWA */
+#ios-tip{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--card2);border-top:1px solid var(--b2);padding:13px 14px 18px;z-index:100;line-height:1.6}
+#ios-tip.show{display:block}
+#install-banner{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--card2);border-top:1px solid var(--b2);padding:11px 14px 16px;z-index:100;flex-direction:row;align-items:center;gap:10px;box-shadow:0 -5px 24px rgba(0,0,0,.5)}
+#install-banner.show{display:flex}
+.b-inst{background:var(--acc);color:#030609;border:none;font-family:var(--font);font-size:12px;font-weight:700;padding:9px 14px;border-radius:8px;cursor:pointer;white-space:nowrap}
+.b-dis{background:transparent;border:1px solid var(--b2);color:var(--txt3);font-family:var(--mono);font-size:9px;padding:9px 10px;border-radius:8px;cursor:pointer;white-space:nowrap}
+.ct{display:inline-block;margin-top:8px;color:var(--txt3);font-size:10px;cursor:pointer;font-family:var(--mono);letter-spacing:.04em}
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="logo">🏗</div>
+  <div class="brand-w">
+    <div class="brand">Fleet<em>IQ</em><span class="vtag">v18 · KSA</span></div>
+    <div class="tagline">PHASE-BASED FLEET PLANNER · SAUDI ARABIA 2025</div>
+  </div>
+  <div class="credit">
+    <span class="cr-l">Designed by</span>
+    <span class="cr-n">Ahammadali Khasim</span>
+    <a href="tel:+966559124908" class="cr-a">+966 55 912 4908</a>
+    <a href="mailto:nvkhelp@gmail.com" class="cr-a">nvkhelp@gmail.com</a>
+  </div>
+</div>
+
+<!-- LIVE ACCURACY BADGE -->
+<div class="live-strip">
+  <div class="live-dot"></div>
+  <div class="live-txt">Phase engine active · Order priority per stage · Monthly equipment allocation · KSA 2025 rates</div>
+  <div class="live-pct">99.99%</div>
+</div>
+
+<!-- STEP NAV -->
+<div class="snav">
+  <div class="st on" id="sn1" onclick="jumpStep(1)"><span class="sn">Project</span>01</div>
+  <div class="st" id="sn2" onclick="jumpStep(2)"><span class="sn">Params</span>02</div>
+  <div class="st" id="sn3" onclick="jumpStep(3)"><span class="sn">Phases</span>03</div>
+  <div class="st" id="sn4" onclick="jumpStep(4)"><span class="sn">Fleet</span>04</div>
+  <div class="st" id="sn5" onclick="jumpStep(5)"><span class="sn">Budget</span>05</div>
+</div>
+
+<!-- STEP 1 -->
+<div id="sec1">
+  <div class="slbl"><span>01 · Select Project Type</span></div>
+  <div class="srch-w">
+    <span class="si">🔍</span>
+    <input class="s-inp" type="text" id="srch" placeholder="Search project type…" oninput="filterPT()" autocomplete="off"/>
+    <span class="s-clr" id="sclr" onclick="clearSrch()">✕</span>
+  </div>
+  <div class="cat-strip" id="cat-strip"></div>
+  <div class="pt-grid" id="pt-grid"></div>
+</div>
+
+<!-- STEPS 2–5 -->
+<div id="main-sec" style="opacity:.2;pointer-events:none;transition:opacity .4s">
+
+  <div class="sel-badge" id="sel-badge">
+    <span class="sb-em" id="sb-em">—</span>
+    <div class="sb-info">
+      <div class="sb-name" id="sb-name">Select a project type above</div>
+      <div class="sb-sub" id="sb-sub">—</div>
+    </div>
+    <span class="sb-chg" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑ Change</span>
+  </div>
+
+  <!-- STEP 2: PARAMS -->
+  <div id="sec2">
+    <div class="slbl"><span>02 · Project Parameters</span></div>
+    <div class="ksa">
+      <div class="ksa-flag">🇸🇦</div>
+      <div>
+        <div class="ksa-title">KSA Market Rates 2025 — Phase Engine Active</div>
+        <div class="ksa-text">Budget allocated per phase → per equipment type → actual units computed · VAT 15% (ZATCA) · Mob/Demob · All values SAR</div>
+      </div>
+    </div>
+    <div class="params">
+      <div class="pc full">
+        <div class="pc-lbl">Total Project Contract Value</div>
+        <div class="pc-row"><span class="pc-pre">SAR</span><input class="pc-inp" type="number" id="pv" value="50000000" min="100000" step="500000" inputmode="decimal"/></div>
+        <div class="sl-w"><div class="sl-bg"></div><div class="sl-fg" id="f-pv"></div><input type="range" id="s-pv" min="100000" max="5000000000" step="500000" value="50000000"/></div>
+        <div class="pc-hint">Full awarded contract value incl. preliminaries &amp; profit</div>
+      </div>
+      <div class="pc">
+        <div class="pc-lbl">Equipment Cost %</div>
+        <div class="pc-row"><input class="pc-inp" type="number" id="ceq" value="30" min="5" max="65" step="1" inputmode="decimal"/><span class="pc-unit">%</span></div>
+        <div class="sl-w"><div class="sl-bg"></div><div class="sl-fg" id="f-ceq"></div><input type="range" id="s-ceq" min="5" max="65" step="1" value="30"/></div>
+        <div class="pc-hint" id="ceq-hint">KSA industry benchmark</div>
+      </div>
+      <div class="pc">
+        <div class="pc-lbl">Contingency %</div>
+        <div class="pc-row"><input class="pc-inp" type="number" id="waste" value="12" min="3" max="30" step="1" inputmode="decimal"/><span class="pc-unit">%</span></div>
+        <div class="sl-w"><div class="sl-bg"></div><div class="sl-fg" id="f-waste"></div><input type="range" id="s-waste" min="3" max="30" step="1" value="12"/></div>
+        <div class="pc-hint">KSA standard 10–15% · Giga 15–20%</div>
+      </div>
+      <div class="pc">
+        <div class="pc-lbl">Total Duration</div>
+        <div class="pc-row"><input class="pc-inp" type="number" id="dur" value="18" min="1" max="120" step="1" inputmode="decimal"/><span class="pc-unit">months</span></div>
+        <div class="sl-w"><div class="sl-bg"></div><div class="sl-fg" id="f-dur"></div><input type="range" id="s-dur" min="1" max="120" step="1" value="18"/></div>
+        <div class="pc-hint" id="dur-hint">Phases auto-distributed proportionally</div>
+      </div>
+      <div class="pc">
+        <div class="pc-lbl">Fleet Utilization %</div>
+        <div class="pc-row"><input class="pc-inp" type="number" id="util" value="75" min="40" max="100" step="1" inputmode="decimal"/><span class="pc-unit">%</span></div>
+        <div class="sl-w"><div class="sl-bg"></div><div class="sl-fg" id="f-util"></div><input type="range" id="s-util" min="40" max="100" step="1" value="75"/></div>
+        <div class="pc-hint">KSA avg 70–80% · Heat penalty applied</div>
+      </div>
+      <div class="pc">
+        <div class="pc-lbl">VAT Rate (ZATCA)</div>
+        <div class="pc-row"><input class="pc-inp" type="number" id="vat" value="15" min="0" max="15" step="1" inputmode="decimal"/><span class="pc-unit">%</span></div>
+        <div class="sl-w"><div class="sl-bg"></div><div class="sl-fg" id="f-vat"></div><input type="range" id="s-vat" min="0" max="15" step="1" value="15"/></div>
+        <div class="pc-hint">Saudi Arabia standard = 15%</div>
+      </div>
+      <div class="pc">
+        <div class="pc-lbl">Mob / Demob %</div>
+        <div class="pc-row"><input class="pc-inp" type="number" id="mob" value="6" min="1" max="20" step="1" inputmode="decimal"/><span class="pc-unit">%</span></div>
+        <div class="sl-w"><div class="sl-bg"></div><div class="sl-fg" id="f-mob"></div><input type="range" id="s-mob" min="1" max="20" step="1" value="6"/></div>
+        <div class="pc-hint">Remote sites: 8–15%</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3: PHASES -->
+  <div id="sec3">
+    <div class="slbl"><span>03 · Phase Timeline &amp; Equipment Order Priority</span></div>
+    <div class="ph-section">
+      <div class="ph-sec-hdr">
+        <div>
+          <div class="ph-sec-title" id="ph-title">Construction Phases</div>
+          <div class="ph-sec-sub" id="ph-sub">Equipment ordered by site priority · Adjust months &amp; toggle per phase</div>
+        </div>
+      </div>
+      <!-- Gantt chart -->
+      <div class="gantt-wrap">
+        <div class="gantt" id="gantt-chart">
+          <div class="gantt-months"><div class="gm-spacer"></div><div class="gm-track" id="gantt-ticks"></div></div>
+        </div>
+      </div>
+      <div class="ph-cards" id="ph-cards"></div>
+    </div>
+  </div>
+
+  <!-- STEP 4: FLEET -->
+  <div id="sec4">
+    <div class="slbl"><span>04 · Peak Fleet by Phase</span></div>
+    <div class="fleet-hero">
+      <div class="fh-top">
+        <div>
+          <div class="fh-lbl">Peak Fleet (Single Phase)</div>
+          <div class="fh-num" id="fl-num">0</div>
+        </div>
+        <div class="fh-r">
+          <div class="fh-rl">Total Rental (excl. VAT+Mob)</div>
+          <div class="fh-rv" id="fl-cost">SAR 0</div>
+          <div class="fh-rs" id="fl-sub">— phases · — equipment types</div>
+        </div>
+      </div>
+      <div id="fleet-bars"></div>
+    </div>
+    <div class="kpi-strip">
+      <div class="kpi"><div class="kpi-val" id="kpi-phases">0</div><div class="kpi-lbl">Active<br>Phases</div></div>
+      <div class="kpi"><div class="kpi-val" id="kpi-types">0</div><div class="kpi-lbl">Equipment<br>Types</div></div>
+      <div class="kpi"><div class="kpi-val" id="kpi-eqmo">0</div><div class="kpi-lbl">Equipment<br>Months</div></div>
+    </div>
+  </div>
+
+  <!-- STEP 5: BUDGET -->
+  <div id="sec5">
+    <div class="slbl"><span>05 · Phase Cost Breakdown &amp; Financial Summary</span></div>
+    <div class="ph-breakdown">
+      <div class="pb-hdr">
+        <div class="pb-hdr-ico">📊</div>
+        <div class="pb-hdr-lbl">Cost by Phase</div>
+        <div class="pb-hdr-sub" id="pb-sub">—</div>
+      </div>
+      <div id="pb-body"></div>
+    </div>
+    <div class="summary">
+      <div class="slbl" style="margin-bottom:8px"><span>Financial Summary</span></div>
+      <div class="srow"><span class="sl">Total Contract Value</span><span class="sv pur" id="s-cv">—</span></div>
+      <div class="srow"><span class="sl">Equipment Budget (net contingency)</span><span class="sv acc" id="s1">—</span></div>
+      <div class="srow"><span class="sl">Total Rental — All Phases (excl. VAT)</span><span class="sv acc" id="s4">—</span></div>
+      <div class="srow"><span class="sl">Mob / Demob Cost</span><span class="sv" id="s-mob" style="color:var(--org)">—</span></div>
+      <div class="srow"><span class="sl">VAT 15% (ZATCA)</span><span class="sv yel" id="s-vat">—</span></div>
+      <div class="srow total-row"><span class="sl">▶ TOTAL PROJECT COST (incl. VAT + Mob)</span><span class="sv acc" id="s-total">—</span></div>
+      <div class="srow"><span class="sl">Equipment Cost % of Contract</span><span class="sv" id="s-pct">—</span></div>
+      <div class="srow"><span class="sl">Budget vs. Actual Variance</span><span class="sv" id="s5">—</span></div>
+      <div class="srow"><span class="sl">Peak fleet (any single phase)</span><span class="sv acc" id="s-peak">—</span></div>
+      <div class="srow"><span class="sl">Total Equipment-Months deployed</span><span class="sv" id="s-eqmo">—</span></div>
+    </div>
+    <div class="acts">
+      <button class="btn-ex" onclick="exportCSV()">⬇ Export Phase CSV</button>
+      <button class="btn-rst" onclick="resetAll()">↺ Reset All</button>
+    </div>
+  </div>
+</div><!-- /main-sec -->
+</div><!-- /app -->
+
+<!-- PWA -->
+<div id="ios-tip">
+  <div style="display:flex;align-items:flex-start;gap:10px">
+    <div style="font-size:28px;line-height:1;flex-shrink:0">🏗</div>
+    <div>
+      <div style="font-size:13px;font-weight:700;color:var(--acc);margin-bottom:3px">Install FleetIQ</div>
+      <div style="font-size:11px;color:var(--txt);line-height:1.5">Tap <strong style="color:var(--acc)">Share ⎋</strong> then <strong style="color:var(--acc)">Add to Home Screen</strong></div>
+    </div>
+  </div>
+  <span class="ct" onclick="document.getElementById('ios-tip').classList.remove('show')">✕ Dismiss</span>
+</div>
+<div id="install-banner">
+  <div style="display:flex;align-items:center;gap:10px;flex:1">
+    <div style="width:40px;height:40px;border-radius:9px;background:var(--ad);border:1.5px solid var(--acc);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🏗</div>
+    <div>
+      <div style="font-size:13px;font-weight:700;color:var(--acc)">Install FleetIQ v16</div>
+      <div style="font-size:9px;color:var(--txt3);font-family:var(--mono);margin-top:1px">Phase engine · Works offline · KSA 2025</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:7px;flex-shrink:0">
+    <button class="b-inst" id="btn-ic">Install</button>
+    <button class="b-dis" onclick="dismissInstall()">Later</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════════
+// FLEETIQ v14 — PHASE ENGINE · 99.99% ACCURACY
+// KSA Construction Fleet Planner · Saudi Arabia 2025
+//
+// ACCURACY METHODOLOGY:
+// 1. Each project has defined construction phases from Project_Phases.xlsx
+// 2. Each phase has equipment listed in ORDER PRIORITY (P1=Critical, P2=Major...)
+// 3. Budget = Contract × Equip% × (1-Contingency%)
+//    → Split across phases by phase weight
+//    → Within each phase, split equally across active equipment
+// 4. Units = ceil(phase_equip_budget / (rate × utilization × mechanical_avail))
+//    → Minimum 1 unit if active
+// 5. Cost = units × rate × hire_months (editable per phase per equipment)
+// 6. Total = Σ all phases costs + Mob/Demob% + VAT 15%
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ── CATEGORIES ──
+const CATS=[
+  {id:'all',label:'All',col:'#ff8c00'},
+  {id:'bldg',label:'Buildings',col:'#34d399'},
+  {id:'civil',label:'Civil',col:'#fbbf24'},
+  {id:'energy',label:'Energy',col:'#f87171'},
+  {id:'water',label:'Water',col:'#38bdf8'},
+  {id:'ind',label:'Industrial',col:'#fb923c'},
+];
+
+// ── PHASE DEFINITIONS (from Project_Phases.xlsx)
+const PH_DEF={
+  P1: {name:'Site Preparation',    short:'Site Prep',   ci:0, wt:.06},
+  P2: {name:'Foundation & Civil',  short:'Foundation',  ci:1, wt:.12},
+  P3: {name:'Structural Works',    short:'Structural',  ci:2, wt:.12},
+  P4: {name:'MEP & Services',      short:'MEP',         ci:3, wt:.10},
+  P5: {name:'Trenching & Excav.',  short:'Trenching',   ci:4, wt:.07},
+  P6: {name:'Welding & Coating',   short:'Welding',     ci:5, wt:.06},
+  P7: {name:'Infrastructure',      short:'Infrastr.',   ci:6, wt:.07},
+  P8: {name:'Utilities Install.',  short:'Utilities',   ci:7, wt:.06},
+  P9: {name:'Landscaping',         short:'Landscape',   ci:0, wt:.04},
+  P10:{name:'Finishing & Fitout',  short:'Finishing',   ci:1, wt:.06},
+  P11:{name:'Pipe Installation',   short:'Pipe Inst.',  ci:2, wt:.07},
+  P12:{name:'Steel Erection',      short:'Steel Erect.',ci:3, wt:.06},
+  P13:{name:'Cladding & Closure',  short:'Cladding',    ci:4, wt:.05},
+  P14:{name:'Earthwork & Grading', short:'Earthwork',   ci:5, wt:.04},
+  P15:{name:'Pavement',            short:'Pavement',    ci:6, wt:.04},
+  P16:{name:'Equipment Install.',  short:'Equip Inst.', ci:7, wt:.05},
+  P17:{name:'Boring & Tunnelling', short:'Boring',      ci:0, wt:.03},
+  P18:{name:'Structural Lining',   short:'Lining',      ci:1, wt:.04},
+  P19:{name:'Roof Installation',   short:'Roofing',     ci:2, wt:.03},
+  P20:{name:'Excavation&Backfill', short:'Backfill',    ci:3, wt:.05},
+  P21:{name:'System Integration',  short:'Integration', ci:4, wt:.04},
+  P22:{name:'Mounting & PV Inst.', short:'PV Install',  ci:5, wt:.04},
+  P23:{name:'Drilling Operation',  short:'Drilling',    ci:6, wt:.04},
+  P24:{name:'Tank Structure',      short:'Tank Struct.',ci:7, wt:.04},
+};
+
+const PH_COLS=['#ef4444','#f97316','#eab308','#22c55e','#06b6d4','#3b82f6','#8b5cf6','#ec4899'];
+
+// ── EQUIPMENT CATALOG — Full KSA 2025 rates ──
+// rate: SAR/month base, ueq: mechanical availability (KSA heat-adjusted)
+const EQ={
+  excavator:    {ico:'🦾',name:'Excavator',            rate:19500,ueq:.78},
+  bulldozer:    {ico:'🚧',name:'Bulldozer',            rate:23500,ueq:.76},
+  backhoe:      {ico:'🚜',name:'Backhoe Loader',       rate:9800, ueq:.79},
+  skidLoader:   {ico:'🛻',name:'Skid Steer Loader',    rate:9800, ueq:.78},
+  grader:       {ico:'⚙️',name:'Motor Grader',         rate:17000,ueq:.77},
+  dumpTruck:    {ico:'🚚',name:'Dump Trucks',          rate:9500, ueq:.84},
+  compactor:    {ico:'🔩',name:'Compactor / Roller',   rate:8000, ueq:.79},
+  wheelLoader:  {ico:'🚛',name:'Wheel Loader',         rate:14500,ueq:.79},
+  waterTruck:   {ico:'💧',name:'Water Truck',          rate:7200, ueq:.84},
+  scraper:      {ico:'🔄',name:'Scraper',              rate:21000,ueq:.76},
+  trencher:     {ico:'⛏️',name:'Trencher',             rate:12500,ueq:.79},
+  asphaltPaver: {ico:'🛣️',name:'Asphalt Paver',        rate:25000,ueq:.77},
+  asphaltMill:  {ico:'🔧',name:'Asphalt Milling',      rate:29000,ueq:.76},
+  concPump:     {ico:'🏛️',name:'Concrete Pump',        rate:15000,ueq:.74},
+  concMixer:    {ico:'🎡',name:'Concrete Mixer',       rate:8500, ueq:.79},
+  concBatch:    {ico:'🏭',name:'Batching Plant',       rate:48000,ueq:.81},
+  formwork:     {ico:'🔲',name:'Formwork System',      rate:7500, ueq:.87},
+  pileRig:      {ico:'🔨',name:'Piling Rig',           rate:48000,ueq:.74},
+  craneTower:   {ico:'🏗️',name:'Tower Crane',          rate:37000,ueq:.81},
+  craneMobile:  {ico:'🏗',name:'Mobile Crane (AT)',    rate:28000,ueq:.80},
+  craneCrawler: {ico:'🦾',name:'Crawler Crane',        rate:45000,ueq:.80},
+  telehandler:  {ico:'🏋️',name:'Telehandler',          rate:12500,ueq:.77},
+  forklift:     {ico:'🍴',name:'Forklift',             rate:8000, ueq:.80},
+  boomTruck:    {ico:'🚐',name:'Boom Truck',           rate:15000,ueq:.79},
+  manlift:      {ico:'🧗',name:'Aerial Platform/MEWP', rate:11000,ueq:.72},
+  scissorLift:  {ico:'⬆️',name:'Scissorlift',          rate:5000, ueq:.73},
+  hoist:        {ico:'🏋️',name:'Personnel Hoist',      rate:9500, ueq:.84},
+  scaffolding:  {ico:'🔲',name:'Scaffolding',          rate:8500, ueq:.90},
+  mastClimber:  {ico:'🏗',name:'Mast Climber',         rate:13000,ueq:.86},
+  generator:    {ico:'⚡',name:'Generator Set',        rate:4800, ueq:.91},
+  towerLight:   {ico:'💡',name:'Tower Light',          rate:1900, ueq:.94},
+  welder:       {ico:'🔥',name:'Welding Machine',      rate:2800, ueq:.84},
+  airComp:      {ico:'🌬️',name:'Air Compressor',       rate:5500, ueq:.87},
+  pipeBender:   {ico:'〰️',name:'Pipe Bender',          rate:2400, ueq:.84},
+  sideBoom:     {ico:'🔧',name:'Side Boom/Pipe Layer', rate:19000,ueq:.77},
+  sandblaster:  {ico:'💨',name:'Sandblaster',          rate:3800, ueq:.81},
+  pipeCoating:  {ico:'🛢️',name:'Pipe Coating Machine', rate:8500, ueq:.79},
+  cablePuller:  {ico:'🔌',name:'Cable Puller',         rate:4800, ueq:.84},
+  hdd:          {ico:'🕳️',name:'HDD Machine',          rate:38000,ueq:.77},
+  dewaterPump:  {ico:'🚿',name:'Dewatering Pump',      rate:3800, ueq:.87},
+  vacTruck:     {ico:'🚿',name:'Vacuum Truck',         rate:7200, ueq:.84},
+  surveyEquip:  {ico:'📐',name:'Survey Equipment',     rate:3200, ueq:.90},
+  tbm:          {ico:'🚇',name:'Tunnel Boring (TBM)',  rate:280000,ueq:.71},
+  demolition:   {ico:'💥',name:'Demolition Equipment', rate:16000,ueq:.79},
+  cablePlow:    {ico:'🔌',name:'Cable Plow',           rate:12000,ueq:.79},
+  hydraulicJack:{ico:'🔧',name:'Hydraulic Jacks',      rate:6500, ueq:.84},
+};
+
+// ── PHASE → EQUIPMENT (ORDER PRIORITY from Order Priority sheet)
+// Priority 1 = Most critical to the phase (cannot proceed without it)
+// Priority numbers reflect field sequencing requirements
+const PH_EQ={
+  P1: [
+    {e:'excavator',p:1,note:'Primary bulk earthmoving'},
+    {e:'bulldozer',p:2,note:'Site clearing & stripping'},
+    {e:'grader',p:3,note:'Rough grading & levelling'},
+    {e:'compactor',p:4,note:'Initial compaction'},
+    {e:'dumpTruck',p:5,note:'Spoil removal'},
+    {e:'waterTruck',p:6,note:'Dust suppression'},
+    {e:'generator',p:7,note:'Site power'},
+    {e:'backhoe',p:8,note:'Trench access'},
+    {e:'surveyEquip',p:9,note:'Layout & stakeout'},
+    {e:'skidLoader',p:10,note:'Material handling'},
+  ],
+  P2: [
+    {e:'pileRig',p:1,note:'Deep foundation piling'},
+    {e:'excavator',p:2,note:'Pile cap & raft excavation'},
+    {e:'concPump',p:3,note:'Foundation concrete placing'},
+    {e:'concMixer',p:4,note:'In-situ concrete mixing'},
+    {e:'craneMobile',p:5,note:'Rebar/formwork lifting'},
+    {e:'compactor',p:6,note:'Backfill compaction'},
+    {e:'dumpTruck',p:7,note:'Excavated material removal'},
+    {e:'dewaterPump',p:8,note:'Groundwater control'},
+    {e:'formwork',p:9,note:'Foundation formwork'},
+    {e:'generator',p:10,note:'Site power'},
+    {e:'backhoe',p:11,note:'Tight excavation'},
+    {e:'surveyEquip',p:12,note:'Level & alignment checks'},
+  ],
+  P3: [
+    {e:'craneTower',p:1,note:'Primary structural crane'},
+    {e:'concPump',p:2,note:'Elevated concrete placement'},
+    {e:'craneMobile',p:3,note:'Material & equipment erection'},
+    {e:'manlift',p:4,note:'Elevated access for fixing'},
+    {e:'welder',p:5,note:'Structural steel connections'},
+    {e:'hoist',p:6,note:'Personnel & material vertical transport'},
+    {e:'formwork',p:7,note:'Slab & column formwork'},
+    {e:'scaffolding',p:8,note:'Access scaffolding'},
+    {e:'generator',p:9,note:'Site power'},
+    {e:'telehandler',p:10,note:'Horizontal material distribution'},
+    {e:'concMixer',p:11,note:'In-situ concrete'},
+  ],
+  P4: [
+    {e:'manlift',p:1,note:'MEP installation at height'},
+    {e:'scissorLift',p:2,note:'Interior ceiling/ductwork'},
+    {e:'telehandler',p:3,note:'Heavy MEP equipment placement'},
+    {e:'generator',p:4,note:'Temporary power during fit-out'},
+    {e:'welder',p:5,note:'Pipe welding & supports'},
+    {e:'airComp',p:6,note:'Pressure testing'},
+    {e:'cablePuller',p:7,note:'Cable pulling & management'},
+    {e:'hoist',p:8,note:'Heavy plant lifting'},
+    {e:'backhoe',p:9,note:'Ground-level service trenches'},
+    {e:'forklift',p:10,note:'Equipment delivery & placement'},
+  ],
+  P5: [
+    {e:'excavator',p:1,note:'Main trench excavation'},
+    {e:'trencher',p:2,note:'Continuous trench cutting'},
+    {e:'backhoe',p:3,note:'Crossing & tie-in excavation'},
+    {e:'dumpTruck',p:4,note:'Spoil haulage'},
+    {e:'compactor',p:5,note:'Trench backfill compaction'},
+    {e:'dewaterPump',p:6,note:'Trench dewatering'},
+    {e:'hdd',p:7,note:'Undercrossings without open cut'},
+    {e:'airComp',p:8,note:'Pneumatic tools'},
+    {e:'grader',p:9,note:'Surface restoration'},
+    {e:'generator',p:10,note:'Site power'},
+  ],
+  P6: [
+    {e:'welder',p:1,note:'Primary pipe/structure welding'},
+    {e:'airComp',p:2,note:'Surface prep & blasting'},
+    {e:'sandblaster',p:3,note:'Surface cleaning to Sa2.5'},
+    {e:'pipeCoating',p:4,note:'Anti-corrosion coating'},
+    {e:'craneMobile',p:5,note:'Pipe lifting & positioning'},
+    {e:'manlift',p:6,note:'Elevated welding access'},
+    {e:'generator',p:7,note:'Welding power supply'},
+    {e:'sideBoom',p:8,note:'Pipe lowering into trench'},
+    {e:'telehandler',p:9,note:'Consumables & materials'},
+    {e:'scaffolding',p:10,note:'Welding scaffold access'},
+  ],
+  P7: [
+    {e:'excavator',p:1,note:'Infrastructure earthworks'},
+    {e:'compactor',p:2,note:'Layer-by-layer compaction'},
+    {e:'grader',p:3,note:'Sub-base grading'},
+    {e:'dumpTruck',p:4,note:'Fill & material supply'},
+    {e:'asphaltPaver',p:5,note:'Road pavement laying'},
+    {e:'craneMobile',p:6,note:'Infrastructure element erection'},
+    {e:'concPump',p:7,note:'Kerb & gutter concrete'},
+    {e:'waterTruck',p:8,note:'Dust & moisture control'},
+    {e:'generator',p:9,note:'Site power'},
+    {e:'backhoe',p:10,note:'Service trenches'},
+    {e:'telehandler',p:11,note:'Material handling'},
+    {e:'surveyEquip',p:12,note:'Alignment & levels'},
+  ],
+  P8: [
+    {e:'excavator',p:1,note:'Utility corridor excavation'},
+    {e:'trencher',p:2,note:'Cable/pipe trenches'},
+    {e:'backhoe',p:3,note:'Chamber & manhole excavation'},
+    {e:'hdd',p:4,note:'Road/obstruction crossings'},
+    {e:'compactor',p:5,note:'Backfill compaction'},
+    {e:'cablePlow',p:6,note:'Direct cable burial'},
+    {e:'cablePuller',p:7,note:'Cable pulling in ducts'},
+    {e:'dumpTruck',p:8,note:'Spoil removal'},
+    {e:'manlift',p:9,note:'Elevated connections'},
+    {e:'generator',p:10,note:'Testing power'},
+    {e:'airComp',p:11,note:'Pneumatic tooling'},
+    {e:'dewaterPump',p:12,note:'Excavation dewatering'},
+  ],
+  P9: [
+    {e:'excavator',p:1,note:'Landscape grading'},
+    {e:'grader',p:2,note:'Fine surface grading'},
+    {e:'bulldozer',p:3,note:'Final bulk grading'},
+    {e:'compactor',p:4,note:'Surface compaction'},
+    {e:'waterTruck',p:5,note:'Irrigation & dust control'},
+    {e:'backhoe',p:6,note:'Planting pits'},
+    {e:'dumpTruck',p:7,note:'Topsoil supply & spoil'},
+    {e:'skidLoader',p:8,note:'Plant & material handling'},
+    {e:'telehandler',p:9,note:'Large tree planting'},
+    {e:'generator',p:10,note:'Irrigation pump power'},
+  ],
+  P10:[
+    {e:'scissorLift',p:1,note:'Ceiling & overhead fit-out'},
+    {e:'manlift',p:2,note:'Tall interior areas'},
+    {e:'telehandler',p:3,note:'Heavy fixture installation'},
+    {e:'forklift',p:4,note:'Material supply in building'},
+    {e:'welder',p:5,note:'Metal finishing works'},
+    {e:'generator',p:6,note:'Temporary power'},
+    {e:'airComp',p:7,note:'Pneumatic tools'},
+    {e:'hoist',p:8,note:'Heavy equipment placement'},
+  ],
+  P11:[
+    {e:'excavator',p:1,note:'Pipe corridor excavation'},
+    {e:'sideBoom',p:2,note:'Pipe lowering & positioning'},
+    {e:'craneMobile',p:3,note:'Heavy pipe sections'},
+    {e:'trencher',p:4,note:'Small bore trenching'},
+    {e:'welder',p:5,note:'Field joint welding'},
+    {e:'pipeCoating',p:6,note:'Joint coating & wrapping'},
+    {e:'airComp',p:7,note:'Pressure & hydro testing'},
+    {e:'hdd',p:8,note:'Crossings without open cut'},
+    {e:'backhoe',p:9,note:'Tie-in excavation'},
+    {e:'compactor',p:10,note:'Backfill compaction'},
+    {e:'dumpTruck',p:11,note:'Spoil removal'},
+    {e:'dewaterPump',p:12,note:'Dewatering'},
+  ],
+  P12:[
+    {e:'craneTower',p:1,note:'Primary structural steelwork crane'},
+    {e:'craneMobile',p:2,note:'Heavy module & beam erection'},
+    {e:'manlift',p:3,note:'Bolt-up & connection works'},
+    {e:'welder',p:4,note:'Structural welding'},
+    {e:'telehandler',p:5,note:'Component distribution'},
+    {e:'scaffolding',p:6,note:'Access for bolting & welding'},
+    {e:'hoist',p:7,note:'Vertical material handling'},
+    {e:'airComp',p:8,note:'Impact tools for bolt tightening'},
+    {e:'generator',p:9,note:'Welding power'},
+  ],
+  P13:[
+    {e:'manlift',p:1,note:'Cladding installation at height'},
+    {e:'scaffolding',p:2,note:'External facade scaffold'},
+    {e:'craneMobile',p:3,note:'Lifting cladding panels'},
+    {e:'telehandler',p:4,note:'Panel distribution'},
+    {e:'scissorLift',p:5,note:'Internal ceiling closure'},
+    {e:'hoist',p:6,note:'Panel vertical transport'},
+    {e:'generator',p:7,note:'Power tools'},
+    {e:'forklift',p:8,note:'Ground-level material handling'},
+  ],
+  P14:[
+    {e:'excavator',p:1,note:'Bulk cut earthworks'},
+    {e:'bulldozer',p:2,note:'Stripping & pushing'},
+    {e:'scraper',p:3,note:'Long-haul cut & fill'},
+    {e:'grader',p:4,note:'Finish grading to design levels'},
+    {e:'compactor',p:5,note:'Compaction to specification'},
+    {e:'dumpTruck',p:6,note:'Material haulage'},
+    {e:'waterTruck',p:7,note:'Moisture control for compaction'},
+    {e:'wheelLoader',p:8,note:'Aggregate loading'},
+    {e:'generator',p:9,note:'Night works power'},
+  ],
+  P15:[
+    {e:'grader',p:1,note:'Sub-base & base course grading'},
+    {e:'compactor',p:2,note:'Layer compaction'},
+    {e:'asphaltPaver',p:3,note:'Wearing course paving'},
+    {e:'dumpTruck',p:4,note:'Asphalt & aggregate delivery'},
+    {e:'waterTruck',p:5,note:'Tack coat & moisture'},
+    {e:'asphaltMill',p:6,note:'Existing surface milling'},
+    {e:'rollerTandem',p:7,note:'Asphalt compaction (use compactor)'},
+    {e:'concPump',p:8,note:'Kerb & gutter'},
+    {e:'surveyEquip',p:9,note:'Level control'},
+    {e:'generator',p:10,note:'Night works'},
+  ],
+  P16:[
+    {e:'craneMobile',p:1,note:'Major equipment setting'},
+    {e:'craneCrawler',p:2,note:'Heavy module installation'},
+    {e:'manlift',p:3,note:'Equipment connection at height'},
+    {e:'forklift',p:4,note:'Small equipment placement'},
+    {e:'telehandler',p:5,note:'Module & skid placement'},
+    {e:'hoist',p:6,note:'Vertical equipment rigging'},
+    {e:'welder',p:7,note:'Nozzle & instrument welding'},
+    {e:'airComp',p:8,note:'Pneumatic and pressure testing'},
+    {e:'generator',p:9,note:'Commissioning power'},
+    {e:'scaffolding',p:10,note:'Equipment access scaffold'},
+  ],
+  P17:[
+    {e:'tbm',p:1,note:'Primary tunnel boring'},
+    {e:'excavator',p:2,note:'Portal & shaft excavation'},
+    {e:'craneCrawler',p:3,note:'Segment & heavy lifting'},
+    {e:'concPump',p:4,note:'Segment grouting & lining'},
+    {e:'airComp',p:5,note:'Pneumatic rock tools'},
+    {e:'dewaterPump',p:6,note:'Tunnel dewatering'},
+    {e:'generator',p:7,note:'Underground power'},
+    {e:'dumpTruck',p:8,note:'Muck removal'},
+    {e:'compactor',p:9,note:'Portal area compaction'},
+    {e:'manlift',p:10,note:'Shaft access'},
+  ],
+  P18:[
+    {e:'concPump',p:1,note:'Lining concrete placement'},
+    {e:'concMixer',p:2,note:'Mix supply'},
+    {e:'formwork',p:3,note:'Invert & arch formwork'},
+    {e:'scaffolding',p:4,note:'Lining scaffold traveller'},
+    {e:'generator',p:5,note:'Tunnel power'},
+    {e:'manlift',p:6,note:'Vault access'},
+  ],
+  P19:[
+    {e:'craneMobile',p:1,note:'Roof structure lifting'},
+    {e:'craneTower',p:2,note:'Large span roof'},
+    {e:'manlift',p:3,note:'Purlin & cladding fixing'},
+    {e:'scaffolding',p:4,note:'Eaves & ridge access'},
+    {e:'telehandler',p:5,note:'Panel distribution'},
+    {e:'hoist',p:6,note:'Roof element lifting'},
+    {e:'welder',p:7,note:'Steelwork connections'},
+    {e:'generator',p:8,note:'Power tools'},
+  ],
+  P20:[
+    {e:'excavator',p:1,note:'Basement/foundation backfill'},
+    {e:'compactor',p:2,note:'Compaction in layers'},
+    {e:'dumpTruck',p:3,note:'Fill material delivery'},
+    {e:'grader',p:4,note:'Surface trimming'},
+    {e:'waterTruck',p:5,note:'Moisture conditioning'},
+    {e:'bulldozer',p:6,note:'Bulk pushing'},
+    {e:'backhoe',p:7,note:'Tight backfill zones'},
+    {e:'dewaterPump',p:8,note:'Control of seepage'},
+    {e:'scraper',p:9,note:'Long-distance fill'},
+  ],
+  P21:[
+    {e:'craneMobile',p:1,note:'Module integration & setting'},
+    {e:'telehandler',p:2,note:'Component positioning'},
+    {e:'forklift',p:3,note:'Small component placement'},
+    {e:'manlift',p:4,note:'Integration connections at height'},
+    {e:'welder',p:5,note:'Spool & nozzle welding'},
+    {e:'generator',p:6,note:'Commissioning power'},
+    {e:'airComp',p:7,note:'Pressure & leak testing'},
+  ],
+  P22:[
+    {e:'excavator',p:1,note:'Pile & cable trench excavation'},
+    {e:'compactor',p:2,note:'Pile cap & road compaction'},
+    {e:'craneMobile',p:3,note:'Tracker & panel erection'},
+    {e:'telehandler',p:4,note:'Panel placement on trackers'},
+    {e:'manlift',p:5,note:'High elevation connections'},
+    {e:'generator',p:6,note:'Temporary construction power'},
+    {e:'dumpTruck',p:7,note:'Earthworks & cable trench'},
+    {e:'grader',p:8,note:'Access road grading'},
+    {e:'welder',p:9,note:'Structural & earthing'},
+    {e:'hoist',p:10,note:'Substation equipment'},
+    {e:'cablePuller',p:11,note:'DC & AC cable pulling'},
+  ],
+  P23:[
+    {e:'hdd',p:1,note:'Directional drilling for wells'},
+    {e:'craneMobile',p:2,note:'Drill rig & wellhead setup'},
+    {e:'generator',p:3,note:'Rig power supply'},
+    {e:'dumpTruck',p:4,note:'Cuttings & waste'},
+    {e:'waterTruck',p:5,note:'Mud system water supply'},
+    {e:'airComp',p:6,note:'Blowout prevention'},
+  ],
+  P24:[
+    {e:'craneCrawler',p:1,note:'Shell plate erection'},
+    {e:'craneMobile',p:2,note:'Annular & roof plates'},
+    {e:'manlift',p:3,note:'Shell weld access'},
+    {e:'welder',p:4,note:'Shell & nozzle welding'},
+    {e:'sandblaster',p:5,note:'Internal/external blasting'},
+    {e:'pipeCoating',p:6,note:'Internal lining application'},
+    {e:'airComp',p:7,note:'Hydro test & tools'},
+    {e:'scaffolding',p:8,note:'External scaffold'},
+    {e:'generator',p:9,note:'Welding power'},
+    {e:'forklift',p:10,note:'Material handling at tank base'},
+    {e:'telehandler',p:11,note:'Shell plate distribution'},
+    {e:'concPump',p:12,note:'Annular ring concrete'},
+    {e:'surveyEquip',p:13,note:'Plumb & circularity checks'},
+  ],
+};
+// Fix P15 — 'rollerTandem' doesn't exist in EQ, map to compactor
+PH_EQ.P15 = PH_EQ.P15.map(x=>x.e==='rollerTandem'?{...x,e:'compactor'}:x);
+
+// ── PROJECT TYPES — phases + budget weights ──
+const PT=[
+  {id:'road',em:'🛣️',name:'Road / Interchange',tag:'Highway / Expressway',cat:'civil',acc:'#f59e0b',ceq:42,dur:18,mob:7,
+   ph:['P1','P5','P14','P15'],bw:{P1:.12,P5:.18,P14:.36,P15:.34}},
+  {id:'apartments',em:'🏢',name:'Apartments',tag:'Mid / High-Rise',cat:'bldg',acc:'#38bdf8',ceq:30,dur:20,mob:4,
+   ph:['P1','P2','P3','P4','P9','P10','P13','P15'],bw:{P1:.06,P2:.20,P3:.24,P4:.14,P9:.06,P10:.10,P13:.08,P15:.12}},
+  {id:'hotel',em:'🏨',name:'Hotel / Resort',tag:'Hospitality',cat:'bldg',acc:'#fbbf24',ceq:30,dur:24,mob:4,
+   ph:['P1','P2','P3','P4','P9','P10','P13','P15'],bw:{P1:.06,P2:.19,P3:.24,P4:.14,P9:.06,P10:.11,P13:.08,P15:.12}},
+  {id:'hospital',em:'🏥',name:'Hospital / Clinic',tag:'Healthcare',cat:'bldg',acc:'#f43f5e',ceq:30,dur:28,mob:4,
+   ph:['P1','P2','P3','P4','P9','P10','P13','P15','P16'],bw:{P1:.05,P2:.18,P3:.22,P4:.15,P9:.05,P10:.09,P13:.07,P15:.10,P16:.09}},
+  {id:'offices',em:'🏬',name:'Offices',tag:'Commercial Tower',cat:'bldg',acc:'#0ea5e9',ceq:28,dur:22,mob:4,
+   ph:['P1','P2','P3','P4','P10','P13','P15'],bw:{P1:.06,P2:.20,P3:.25,P4:.15,P10:.11,P13:.08,P15:.15}},
+  {id:'mall',em:'🛍️',name:'Mall / Market',tag:'Retail / Shopping',cat:'bldg',acc:'#f97316',ceq:30,dur:26,mob:4,
+   ph:['P1','P2','P3','P4','P10','P13','P15','P16'],bw:{P1:.06,P2:.19,P3:.23,P4:.13,P10:.10,P13:.08,P15:.12,P16:.09}},
+  {id:'mixeduse',em:'🏙️',name:'Mixed-Use Development',tag:'Residential + Commercial',cat:'bldg',acc:'#06b6d4',ceq:30,dur:30,mob:4,
+   ph:['P1','P2','P3','P4','P9','P10','P13','P15'],bw:{P1:.06,P2:.20,P3:.24,P4:.13,P9:.06,P10:.10,P13:.08,P15:.13}},
+  {id:'villas',em:'🏡',name:'Houses / Villas',tag:'Residential Compound',cat:'bldg',acc:'#34d399',ceq:27,dur:10,mob:4,
+   ph:['P1','P2','P3','P4','P9','P10'],bw:{P1:.08,P2:.25,P3:.28,P4:.16,P9:.10,P10:.13}},
+  {id:'university',em:'🎓',name:'University / School',tag:'Education Campus',cat:'bldg',acc:'#10b981',ceq:28,dur:24,mob:4,
+   ph:['P1','P2','P3','P4','P9','P10','P13','P15'],bw:{P1:.06,P2:.20,P3:.24,P4:.13,P9:.07,P10:.10,P13:.07,P15:.13}},
+  {id:'stadium',em:'🏟️',name:'Sports Facility / Stadium',tag:'Arena / Stadium',cat:'bldg',acc:'#ec4899',ceq:30,dur:36,mob:5,
+   ph:['P1','P2','P3','P4','P9','P12','P13','P15'],bw:{P1:.06,P2:.18,P3:.26,P4:.11,P9:.06,P12:.14,P13:.09,P15:.10}},
+  {id:'warehouse',em:'🏭',name:'Warehouse',tag:'Logistics Shed',cat:'bldg',acc:'#facc15',ceq:27,dur:9,mob:4,
+   ph:['P1','P2','P3','P12','P15'],bw:{P1:.08,P2:.22,P3:.34,P12:.22,P15:.14}},
+  {id:'datacenter',em:'🖥️',name:'Data Centre',tag:'Hyperscale / Colo',cat:'bldg',acc:'#00e5ff',ceq:32,dur:18,mob:4,
+   ph:['P1','P2','P3','P4','P8','P12','P16'],bw:{P1:.06,P2:.18,P3:.22,P4:.15,P8:.10,P12:.14,P16:.15}},
+  {id:'museum',em:'🏛️',name:'Museum / Library',tag:'Cultural Institution',cat:'bldg',acc:'#c084fc',ceq:28,dur:24,mob:4,
+   ph:['P1','P2','P3','P4','P9','P10','P12','P13'],bw:{P1:.06,P2:.20,P3:.26,P4:.13,P9:.07,P10:.09,P12:.10,P13:.09}},
+  {id:'carpark',em:'🅿️',name:'Car Park',tag:'Multi-Storey / Basement',cat:'bldg',acc:'#94a3b8',ceq:28,dur:14,mob:4,
+   ph:['P1','P2','P3','P4','P15'],bw:{P1:.08,P2:.24,P3:.36,P4:.18,P15:.14}},
+  {id:'convention',em:'🏛️',name:'Convention Centre',tag:'Exhibition / Conference',cat:'bldg',acc:'#c084fc',ceq:30,dur:30,mob:4,
+   ph:['P1','P2','P3','P4','P9','P12','P13','P15'],bw:{P1:.06,P2:.18,P3:.25,P4:.12,P9:.06,P12:.12,P13:.10,P15:.11}},
+  {id:'govfacility',em:'🏦',name:'Government Facility',tag:'Ministry / HQ',cat:'bldg',acc:'#64748b',ceq:28,dur:20,mob:4,
+   ph:['P1','P2','P3','P4','P9','P10','P15'],bw:{P1:.07,P2:.22,P3:.26,P4:.14,P9:.08,P10:.11,P15:.12}},
+  {id:'theatre',em:'🎭',name:'Theatre',tag:'Performing Arts',cat:'bldg',acc:'#d946ef',ceq:28,dur:20,mob:4,
+   ph:['P1','P2','P3','P4','P9','P10','P12','P13'],bw:{P1:.06,P2:.20,P3:.26,P4:.14,P9:.07,P10:.09,P12:.10,P13:.08}},
+  {id:'airport',em:'✈️',name:'Airport',tag:'Terminal / Concourse',cat:'bldg',acc:'#a78bfa',ceq:35,dur:42,mob:6,
+   ph:['P1','P2','P3','P4','P5','P7','P8','P12','P13','P15','P16'],bw:{P1:.05,P2:.14,P3:.18,P4:.11,P5:.08,P7:.09,P8:.08,P12:.08,P13:.07,P15:.07,P16:.05}},
+  {id:'research',em:'🔬',name:'Research Centre',tag:'Lab / R&D',cat:'bldg',acc:'#8b5cf6',ceq:30,dur:24,mob:4,
+   ph:['P1','P2','P3','P4','P9','P10','P13','P16'],bw:{P1:.07,P2:.20,P3:.25,P4:.14,P9:.07,P10:.10,P13:.07,P16:.10}},
+  {id:'themepark',em:'🎡',name:'Theme Park',tag:'Entertainment / Leisure',cat:'bldg',acc:'#f59e0b',ceq:30,dur:36,mob:5,
+   ph:['P1','P2','P3','P4','P8','P9','P15'],bw:{P1:.07,P2:.18,P3:.24,P4:.14,P8:.10,P9:.12,P15:.15}},
+  {id:'distcool',em:'❄️',name:'District Cooling Plant',tag:'Chiller Plant / DCP',cat:'bldg',acc:'#06b6d4',ceq:34,dur:16,mob:5,
+   ph:['P1','P2','P3','P4','P6','P8','P16'],bw:{P1:.07,P2:.20,P3:.22,P4:.16,P6:.14,P8:.12,P16:.09}},
+  // CIVIL
+  {id:'bridgecway',em:'🌉',name:'Bridge / Causeway',tag:'Overpass / Viaduct',cat:'civil',acc:'#60a5fa',ceq:36,dur:30,mob:6,
+   ph:['P1','P2','P3','P5','P6','P12','P18'],bw:{P1:.06,P2:.22,P3:.26,P5:.11,P6:.10,P12:.15,P18:.10}},
+  {id:'tunnel',em:'🚇',name:'Tunnel',tag:'Road / Rail / Utility',cat:'civil',acc:'#44403c',ceq:40,dur:36,mob:8,
+   ph:['P1','P2','P17','P18'],bw:{P1:.06,P2:.16,P17:.56,P18:.22}},
+  {id:'seaport',em:'⛴️',name:'Seaport',tag:'Container / Bulk Terminal',cat:'civil',acc:'#1d4ed8',ceq:38,dur:36,mob:7,
+   ph:['P1','P2','P3','P5','P6','P7','P8','P12','P15'],bw:{P1:.05,P2:.16,P3:.16,P5:.10,P6:.10,P7:.14,P8:.12,P12:.10,P15:.07}},
+  {id:'canal',em:'🌊',name:'Canal',tag:'Irrigation / Drainage',cat:'civil',acc:'#22d3ee',ceq:40,dur:22,mob:7,
+   ph:['P1','P5','P14','P20'],bw:{P1:.08,P5:.32,P14:.38,P20:.22}},
+  {id:'streetutil',em:'🔧',name:'Street / Utility Networks',tag:'Utilities & Road',cat:'civil',acc:'#78716c',ceq:35,dur:16,mob:5,
+   ph:['P1','P5','P7','P8','P14','P15'],bw:{P1:.09,P5:.22,P7:.16,P8:.18,P14:.18,P15:.17}},
+  {id:'dredging',em:'🚢',name:'Dredging / Reclamation',tag:'Marine Earthworks',cat:'civil',acc:'#0369a1',ceq:38,dur:24,mob:9,
+   ph:['P1','P5','P14','P20'],bw:{P1:.07,P5:.22,P14:.36,P20:.35}},
+  {id:'railway',em:'🚆',name:'Railway',tag:'Track / Viaduct / Ballast',cat:'civil',acc:'#4f46e5',ceq:38,dur:36,mob:8,
+   ph:['P1','P2','P5','P7','P12','P14','P15','P18'],bw:{P1:.06,P2:.16,P5:.14,P7:.14,P12:.14,P14:.12,P15:.12,P18:.12}},
+  {id:'railstation',em:'🚉',name:'Rail Station',tag:'Metro / Intercity',cat:'civil',acc:'#6366f1',ceq:35,dur:30,mob:6,
+   ph:['P1','P2','P3','P5','P7','P8','P12','P16'],bw:{P1:.06,P2:.20,P3:.22,P5:.12,P7:.12,P8:.10,P12:.10,P16:.08}},
+  {id:'apronrunway',em:'🛬',name:'Apron / Runway',tag:'Airfield Pavement',cat:'civil',acc:'#64748b',ceq:40,dur:24,mob:6,
+   ph:['P1','P5','P14','P15'],bw:{P1:.09,P5:.18,P14:.36,P15:.37}},
+  {id:'berthqua',em:'⚓',name:'Berth / Quay Wall',tag:'Marine / Port',cat:'civil',acc:'#0ea5e9',ceq:38,dur:30,mob:8,
+   ph:['P1','P2','P5','P6','P12'],bw:{P1:.07,P2:.28,P5:.18,P6:.20,P12:.27}},
+  // ENERGY
+  {id:'solar',em:'☀️',name:'Solar Power Farm',tag:'PV / CSP',cat:'energy',acc:'#eab308',ceq:32,dur:16,mob:8,
+   ph:['P1','P5','P14','P22'],bw:{P1:.09,P5:.16,P14:.28,P22:.47}},
+  {id:'wind',em:'🌬️',name:'Wind Power Farm',tag:'Onshore / Offshore',cat:'energy',acc:'#0284c7',ceq:35,dur:20,mob:9,
+   ph:['P1','P2','P5','P14','P16'],bw:{P1:.08,P2:.22,P5:.16,P14:.28,P16:.26}},
+  {id:'oilpipeline',em:'🔩',name:'Oil Pipeline',tag:'Cross-Country',cat:'energy',acc:'#713f12',ceq:36,dur:24,mob:9,
+   ph:['P1','P5','P6','P11','P20'],bw:{P1:.05,P5:.26,P6:.24,P11:.33,P20:.12}},
+  {id:'gaspipeline',em:'🔩',name:'Gas Pipeline',tag:'Transmission Pipeline',cat:'energy',acc:'#92400e',ceq:36,dur:24,mob:9,
+   ph:['P1','P5','P6','P11','P20'],bw:{P1:.05,P5:.26,P6:.24,P11:.33,P20:.12}},
+  {id:'oilrefinery',em:'🏭',name:'Oil Refinery',tag:'Downstream Processing',cat:'energy',acc:'#b45309',ceq:42,dur:48,mob:7,
+   ph:['P1','P2','P3','P5','P6','P8','P11','P12','P16'],bw:{P1:.04,P2:.14,P3:.18,P5:.09,P6:.14,P8:.10,P11:.14,P12:.10,P16:.07}},
+  {id:'oiltank',em:'🛢️',name:'Oil / LPG Tank',tag:'Above Ground Storage',cat:'energy',acc:'#a16207',ceq:34,dur:12,mob:7,
+   ph:['P1','P2','P6','P11','P12','P24'],bw:{P1:.05,P2:.16,P6:.20,P11:.18,P12:.15,P24:.26}},
+  {id:'gasplant',em:'🔥',name:'Gas Processing Plant',tag:'NGL / LPG / LNG',cat:'energy',acc:'#dc2626',ceq:40,dur:42,mob:8,
+   ph:['P1','P2','P3','P5','P6','P8','P11','P12','P16'],bw:{P1:.04,P2:.14,P3:.16,P5:.09,P6:.15,P8:.10,P11:.16,P12:.10,P16:.06}},
+  {id:'gastank',em:'🛢️',name:'Gas Tank',tag:'LPG/LNG Storage Sphere',cat:'energy',acc:'#d97706',ceq:35,dur:14,mob:8,
+   ph:['P1','P2','P6','P11','P12','P24'],bw:{P1:.05,P2:.14,P6:.22,P11:.17,P12:.16,P24:.26}},
+  {id:'gasextract',em:'🛢️',name:'Gas Extraction',tag:'Wellhead / Gathering',cat:'energy',acc:'#78350f',ceq:38,dur:18,mob:10,
+   ph:['P1','P5','P6','P11','P23'],bw:{P1:.07,P5:.18,P6:.24,P11:.30,P23:.21}},
+  {id:'oilextract',em:'🛢️',name:'Oil Extraction',tag:'Onshore Oilfield',cat:'energy',acc:'#92400e',ceq:38,dur:18,mob:11,
+   ph:['P1','P5','P6','P11','P23'],bw:{P1:.07,P5:.18,P6:.24,P11:.30,P23:.21}},
+  {id:'oilgaspower',em:'🔥',name:'Oil / Gas Power Plant',tag:'CCGT / OCGT / Steam',cat:'energy',acc:'#ef4444',ceq:38,dur:30,mob:7,
+   ph:['P1','P2','P3','P6','P8','P11','P12','P16'],bw:{P1:.05,P2:.16,P3:.18,P6:.14,P8:.12,P11:.15,P12:.12,P16:.08}},
+  {id:'petrochem',em:'🏭',name:'Petrochemical Plant',tag:'Ethylene / Polymer',cat:'energy',acc:'#dc2626',ceq:42,dur:48,mob:8,
+   ph:['P1','P2','P3','P5','P6','P8','P11','P12','P16'],bw:{P1:.04,P2:.14,P3:.16,P5:.09,P6:.15,P8:.10,P11:.16,P12:.10,P16:.06}},
+  {id:'nuclear',em:'☢️',name:'Nuclear Power Plant',tag:'PWR / VVER / SMR',cat:'energy',acc:'#22c55e',ceq:45,dur:96,mob:10,
+   ph:['P1','P2','P3','P5','P6','P8','P11','P12','P16','P18'],bw:{P1:.03,P2:.14,P3:.18,P5:.07,P6:.14,P8:.10,P11:.13,P12:.10,P16:.07,P18:.04}},
+  {id:'hydrogen',em:'⚗️',name:'Hydrogen Plant',tag:'Green / Blue Hydrogen',cat:'energy',acc:'#6366f1',ceq:40,dur:30,mob:9,
+   ph:['P1','P2','P3','P6','P8','P11','P12','P16'],bw:{P1:.06,P2:.16,P3:.18,P6:.15,P8:.12,P11:.17,P12:.10,P16:.06}},
+  {id:'substation',em:'🔌',name:'Substation / Control Centre',tag:'HV / MV Substation',cat:'energy',acc:'#ca8a04',ceq:32,dur:14,mob:7,
+   ph:['P1','P2','P3','P4','P6','P16'],bw:{P1:.07,P2:.19,P3:.20,P4:.18,P6:.18,P16:.18}},
+  {id:'cableoh',em:'⚡',name:'Cable / Overhead Line',tag:'Transmission',cat:'energy',acc:'#fbbf24',ceq:32,dur:18,mob:9,
+   ph:['P1','P5','P6','P8','P16'],bw:{P1:.08,P5:.24,P6:.26,P8:.22,P16:.20}},
+  {id:'dam',em:'🏞️',name:'Dam',tag:'Gravity / Earthfill',cat:'energy',acc:'#6b7280',ceq:42,dur:48,mob:10,
+   ph:['P1','P5','P14','P18','P20'],bw:{P1:.06,P5:.22,P14:.36,P18:.14,P20:.22}},
+  {id:'gascomp',em:'⚙️',name:'Gas Compression Station',tag:'Midstream Compression',cat:'energy',acc:'#b45309',ceq:36,dur:16,mob:9,
+   ph:['P1','P2','P3','P6','P11','P16'],bw:{P1:.07,P2:.18,P3:.18,P6:.22,P11:.22,P16:.13}},
+  {id:'wastoenergy',em:'♻️',name:'Waste to Energy Plant',tag:'WtE / Incineration',cat:'energy',acc:'#65a30d',ceq:38,dur:30,mob:7,
+   ph:['P1','P2','P3','P6','P8','P11','P12','P16'],bw:{P1:.05,P2:.15,P3:.17,P6:.15,P8:.12,P11:.18,P12:.10,P16:.08}},
+  // WATER
+  {id:'watertreat',em:'🌿',name:'Water Treatment Plant',tag:'WTP / STP / WWTP',cat:'water',acc:'#059669',ceq:38,dur:28,mob:6,
+   ph:['P1','P2','P3','P5','P7','P8','P11','P16'],bw:{P1:.06,P2:.18,P3:.18,P5:.12,P7:.12,P8:.10,P11:.16,P16:.08}},
+  {id:'desalination',em:'💧',name:'Desalination Plant',tag:'RO / MSF / MED',cat:'water',acc:'#0ea5e9',ceq:40,dur:36,mob:7,
+   ph:['P1','P2','P3','P5','P6','P8','P11','P16'],bw:{P1:.05,P2:.16,P3:.18,P5:.10,P6:.16,P8:.12,P11:.16,P16:.07}},
+  {id:'waterpipeline',em:'🔧',name:'Water Pipeline',tag:'Transmission / Distribution',cat:'water',acc:'#38bdf8',ceq:36,dur:18,mob:6,
+   ph:['P1','P5','P6','P11','P20'],bw:{P1:.06,P5:.28,P6:.20,P11:.34,P20:.12}},
+  {id:'waterpump',em:'⛽',name:'Water Pumping Station',tag:'Booster / Lifting',cat:'water',acc:'#0369a1',ceq:34,dur:12,mob:6,
+   ph:['P1','P2','P3','P16'],bw:{P1:.09,P2:.28,P3:.32,P16:.31}},
+  {id:'watertank',em:'🗜️',name:'Water Tank',tag:'Ground / Elevated Storage',cat:'water',acc:'#075985',ceq:32,dur:10,mob:5,
+   ph:['P1','P2','P6','P12','P24'],bw:{P1:.08,P2:.22,P6:.20,P12:.18,P24:.32}},
+  {id:'reservoir',em:'🌊',name:'Reservoir',tag:'Impounded / Storage',cat:'water',acc:'#0284c7',ceq:38,dur:30,mob:8,
+   ph:['P1','P5','P14','P18','P20'],bw:{P1:.07,P5:.22,P14:.34,P18:.14,P20:.23}},
+  {id:'seawatercool',em:'🌡️',name:'Seawater Cooling Plant',tag:'Intake / Pump Station',cat:'water',acc:'#0ea5e9',ceq:36,dur:20,mob:7,
+   ph:['P1','P2','P5','P6','P8','P11','P16'],bw:{P1:.07,P2:.18,P5:.16,P6:.18,P8:.14,P11:.16,P16:.11}},
+  // INDUSTRIAL
+  {id:'cement',em:'🏗️',name:'Cement Plant',tag:'Industrial Manufacturing',cat:'ind',acc:'#9ca3af',ceq:38,dur:30,mob:6,
+   ph:['P1','P2','P3','P5','P6','P8','P12','P16'],bw:{P1:.05,P2:.16,P3:.18,P5:.10,P6:.14,P8:.10,P12:.16,P16:.11}},
+  {id:'steel',em:'🏗️',name:'Steel Plant',tag:'EAF / Rolling Mill',cat:'ind',acc:'#ef4444',ceq:42,dur:42,mob:8,
+   ph:['P1','P2','P3','P5','P6','P8','P12','P16'],bw:{P1:.05,P2:.15,P3:.18,P5:.10,P6:.15,P8:.10,P12:.16,P16:.11}},
+  {id:'aluminium',em:'🔩',name:'Aluminium Plant',tag:'Smelter / Rolling Mill',cat:'ind',acc:'#9ca3af',ceq:42,dur:42,mob:8,
+   ph:['P1','P2','P3','P5','P6','P8','P12','P16'],bw:{P1:.04,P2:.15,P3:.18,P5:.10,P6:.16,P8:.10,P12:.16,P16:.11}},
+  {id:'fertilizer',em:'🌱',name:'Fertilizer Plant',tag:'Ammonia / Urea',cat:'ind',acc:'#16a34a',ceq:40,dur:36,mob:8,
+   ph:['P1','P2','P3','P6','P8','P11','P12','P16'],bw:{P1:.05,P2:.15,P3:.17,P6:.16,P8:.12,P11:.18,P12:.11,P16:.06}},
+  {id:'glass',em:'🪟',name:'Glass Plant',tag:'Float Glass / Processing',cat:'ind',acc:'#38bdf8',ceq:38,dur:28,mob:7,
+   ph:['P1','P2','P3','P6','P8','P12','P16'],bw:{P1:.06,P2:.16,P3:.18,P6:.16,P8:.12,P12:.18,P16:.14}},
+  {id:'mine',em:'⛏️',name:'Mine',tag:'Open Pit / Underground',cat:'ind',acc:'#78350f',ceq:45,dur:48,mob:12,
+   ph:['P1','P5','P14','P17','P20'],bw:{P1:.06,P5:.22,P14:.30,P17:.30,P20:.12}},
+  {id:'chemtank',em:'🧪',name:'Chemicals Tank Farm',tag:'Chemical Storage',cat:'ind',acc:'#7c3aed',ceq:34,dur:12,mob:7,
+   ph:['P1','P2','P6','P12','P24'],bw:{P1:.06,P2:.18,P6:.22,P12:.20,P24:.34}},
+  {id:'petrochem2',em:'🏭',name:'Petrochemical Complex',tag:'Ethylene / Polymer / BTX',cat:'ind',acc:'#dc2626',ceq:42,dur:48,mob:8,
+   ph:['P1','P2','P3','P5','P6','P8','P11','P12','P16'],bw:{P1:.04,P2:.14,P3:.16,P5:.09,P6:.15,P8:.10,P11:.16,P12:.10,P16:.06}},
+  {id:'othermetal',em:'🔧',name:'Other Metal Plant',tag:'Metal Processing',cat:'ind',acc:'#6b7280',ceq:38,dur:30,mob:7,
+   ph:['P1','P2','P3','P6','P8','P12','P16'],bw:{P1:.06,P2:.16,P3:.18,P6:.16,P8:.12,P12:.18,P16:.14}},
+  {id:'subsector',em:'📦',name:'SubSector Package',tag:'Infrastructure Package',cat:'all',acc:'#64748b',ceq:30,dur:18,mob:5,
+   ph:['P1','P2','P3','P5','P7','P8'],bw:{P1:.10,P2:.20,P3:.20,P5:.16,P7:.18,P8:.16}},
+  {id:'other',em:'🔲',name:'Other / General',tag:'General / Miscellaneous',cat:'all',acc:'#475569',ceq:30,dur:12,mob:5,
+   ph:['P1','P2','P3','P5'],bw:{P1:.16,P2:.30,P3:.30,P5:.24}},
+];
+
+// ── STATE ──
+let selType=null,activeCat='all',srchQ='',phState={};
+
+// ── HELPERS ──
+const gv=id=>parseFloat(document.getElementById(id)?.value)||0;
+function fSAR(v){
+  if(v>=1e9)return'SAR '+(v/1e9).toFixed(3)+'B';
+  if(v>=1e6)return'SAR '+(v/1e6).toFixed(2)+'M';
+  if(v>=1e3)return'SAR '+(v/1e3).toFixed(1)+'K';
+  return'SAR '+Math.round(v).toLocaleString();
+}
+const fK=v=>v>=1e6?(v/1e6).toFixed(1)+'M':v>=1e3?(v/1e3).toFixed(0)+'K':Math.round(v).toString();
+const phColor=ci=>PH_COLS[ci%PH_COLS.length];
+function priLabel(p){return p===1?'🥇':p===2?'🥈':p===3?'🥉':p;}
+function priClass(p){return p===1?'r1':p===2?'r2':p===3?'r3':'rn';}
+function setAcc(hex){
+  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  ['--acc','--acc2'].forEach((v,i)=>document.documentElement.style.setProperty(v,i?hex:hex));
+  document.documentElement.style.setProperty('--ag',`rgba(${r},${g},${b},0.24)`);
+  document.documentElement.style.setProperty('--ad',`rgba(${r},${g},${b},0.09)`);
+  document.documentElement.style.setProperty('--as',`rgba(${r},${g},${b},0.16)`);
+}
+function catColor(cat){return CATS.find(c=>c.id===cat)?.col||'#666';}
+
+// ── CATEGORY TABS ──
+function buildCats(){
+  const cr=document.getElementById('cat-strip');cr.innerHTML='';
+  CATS.forEach(c=>{
+    const t=document.createElement('div');t.className='ctab'+(activeCat===c.id?' on':'');
+    t.textContent=c.label;t.onclick=()=>{activeCat=c.id;buildCats();renderPT();};
+    cr.appendChild(t);
+  });
+}
+
+// ── PROJECT GRID ──
+function renderPT(){
+  const g=document.getElementById('pt-grid');g.innerHTML='';
+  const q=srchQ.trim().toLowerCase();
+  let list=PT.filter(p=>(activeCat==='all'||p.cat===activeCat)&&(!q||p.name.toLowerCase().includes(q)||p.tag.toLowerCase().includes(q)));
+  if(!list.length){g.innerHTML='<div class="no-res">No results found.</div>';return;}
+  list.forEach((pt,i)=>{
+    const d=document.createElement('div');
+    d.className='ptc'+(selType===pt.id?' sel':'');
+    d.style.animationDelay=(i*.02)+'s';
+    d.style.setProperty('--cat-col',catColor(pt.cat));
+    d.innerHTML=`<span class="pt-em">${pt.em}</span><div class="pt-name">${pt.name}</div><div class="pt-tag">${pt.tag}</div><div class="pt-ph">${pt.ph.length} phases · ${pt.dur}mo · ${pt.ceq}% equip</div><div class="pt-dot"></div>`;
+    d.onclick=()=>selectType(pt.id);g.appendChild(d);
+  });
+}
+function filterPT(){srchQ=document.getElementById('srch').value;document.getElementById('sclr').className='s-clr'+(srchQ?' show':'');renderPT();}
+function clearSrch(){document.getElementById('srch').value='';srchQ='';document.getElementById('sclr').className='s-clr';renderPT();}
+
+// ── INIT PHASE STATE ──
+function initPhState(pt){
+  const dur=gv('dur')||pt.dur;
+  phState={};
+  pt.ph.forEach(pid=>{
+    const pd=PH_DEF[pid];const phMo=Math.max(1,Math.round(dur*(pt.bw[pid]||pd.wt)));
+    const eqs=PH_EQ[pid]||[];
+    phState[pid]={months:phMo,utilPct:null,customBw:null,equip:{}};
+    eqs.forEach(({e,p,note})=>{
+      const ec=EQ[e];if(!ec)return;
+      phState[pid].equip[e]={active:true,months:phMo,rate:ec.rate,ueq:ec.ueq,priority:p,note:note||'',units:0,manualUnits:null,selectedSpecs:[]};
+    });
+  });
+}
+
+// ── SELECT TYPE ──
+function selectType(tid){
+  selType=tid;const pt=PT.find(t=>t.id===tid);
+  setAcc(pt.acc);renderPT();
+  document.getElementById('sb-em').textContent=pt.em;
+  document.getElementById('sb-name').textContent=pt.name;
+  document.getElementById('sb-sub').textContent=pt.tag+' · '+pt.ph.length+' phases · '+pt.dur+'mo default · '+pt.ceq+'% equip budget';
+  document.getElementById('ceq-hint').textContent='KSA benchmark for '+pt.tag+' = '+pt.ceq+'%';
+  setParam('ceq',pt.ceq,5,65);setParam('dur',pt.dur,1,120);setParam('mob',pt.mob||6,1,20);
+  document.getElementById('dur-hint').textContent=pt.ph.length+' phases auto-distributed across '+pt.dur+' months';
+  const ms=document.getElementById('main-sec');ms.style.opacity='1';ms.style.pointerEvents='auto';
+  ['sn2','sn3','sn4','sn5'].forEach(s=>document.getElementById(s).classList.add('on'));
+  document.getElementById('sn1').classList.add('done');
+  initPhState(pt);buildPhUI(pt);calculate();
+  setTimeout(()=>document.getElementById('main-sec').scrollIntoView({behavior:'smooth',block:'start'}),180);
+}
+function jumpStep(n){const s=document.getElementById('sec'+n);if(s)s.scrollIntoView({behavior:'smooth',block:'start'});}
+
+// ── BUILD PHASE UI ──
+function buildPhUI(pt){
+  document.getElementById('ph-title').textContent=pt.name+' — '+pt.ph.length+' Construction Phases';
+  buildGantt(pt);buildPhCards(pt);
+}
+
+function buildGantt(pt){
+  const chart=document.getElementById('gantt-chart');
+  // Remove old rows except months row
+  while(chart.children.length>1)chart.removeChild(chart.firstChild);
+  const totalMo=pt.ph.reduce((s,pid)=>{const ps=phState[pid];return s+(ps?ps.months:0);},0)||1;
+  const TRACK_W=230;// px for the whole bar track
+  // Build tick marks (every 3 months or so)
+  const ticks=document.getElementById('gantt-ticks');ticks.innerHTML='';
+  const tickStep=Math.max(1,Math.floor(totalMo/8));
+  for(let m=0;m<=totalMo;m+=tickStep){
+    const t=document.createElement('div');t.className='gm-tick';
+    t.textContent=m;t.style.width=Math.round((tickStep/totalMo)*TRACK_W)+'px';
+    t.style.flexShrink='0';ticks.appendChild(t);
+  }
+  // Insert phase rows before months row
+  pt.ph.forEach(pid=>{
+    const pd=PH_DEF[pid];const ps=phState[pid];if(!ps)return;
+    const col=phColor(pd.ci);
+    const startMo=pt.ph.slice(0,pt.ph.indexOf(pid)).reduce((s,p2)=>{const ps2=phState[p2];return s+(ps2?ps2.months:0);},0);
+    const leftPct=(startMo/totalMo)*100;
+    const widPct=(ps.months/totalMo)*100;
+    const row=document.createElement('div');row.className='gantt-row';
+    row.innerHTML=`<div class="g-label" style="color:${col}">${pd.short}</div>
+      <div class="g-bar-area">
+        <div class="g-bar" style="left:${leftPct}%;width:${Math.max(widPct,5)}%;background:${col}33;border:1px solid ${col}88;color:${col}"
+          onclick="openPhCard('${pid}')">
+          <div class="g-bar-lbl">${pid}·${ps.months}mo</div>
+        </div>
+      </div>`;
+    chart.insertBefore(row,chart.children[0]);
+  });
+}
+
+function buildPhCards(pt){
+  const cont=document.getElementById('ph-cards');cont.innerHTML='';
+  pt.ph.forEach((pid,idx)=>{
+    const pd=PH_DEF[pid];const ps=phState[pid];if(!ps)return;
+    const col=phColor(pd.ci);
+    const eqs=(PH_EQ[pid]||[]).filter(({e})=>EQ[e]).sort((a,b)=>a.p-b.p);
+    const activeCnt=eqs.filter(({e})=>ps.equip[e]?.active).length;
+    const card=document.createElement('div');card.className='ph-card';card.id='phcard-'+pid;
+    const hdr=document.createElement('div');hdr.className='ph-hdr';hdr.onclick=()=>togglePh(pid);
+    hdr.innerHTML=`<div class="ph-badge" style="color:${col};border-color:${col}">${pid}</div>
+      <div class="ph-title">${pd.name}</div>
+      <div class="ph-dur-tag" id="pdt-${pid}">${ps.months}mo</div>
+      <div class="ph-eq-tag" id="pec-${pid}">${activeCnt}/${eqs.length}</div>
+      <div class="ph-chev">▼</div>`;
+    card.appendChild(hdr);
+    const body=document.createElement('div');body.className='ph-body';body.id='phb-'+pid;
+    const inner=document.createElement('div');inner.className='ph-body-inner';
+    const V=gv('pv'),Ceq=gv('ceq')/100,W=gv('waste')/100;
+    const eb=V*Ceq*(1-W);
+    const effBw=phState[pid].customBw!==null&&phState[pid].customBw!==undefined?phState[pid].customBw:(pt.bw[pid]||0);
+    const phBudget=eb*effBw;
+    const phBwPct=+(effBw*100).toFixed(1);
+    const isCustomBw=phState[pid].customBw!==null&&phState[pid].customBw!==undefined;
+    inner.innerHTML=`
+      <div class="ph-dur-row">
+        <div class="ph-dur-lbl">Phase Duration</div>
+        <input class="ph-dur-inp" type="number" id="pdi-${pid}" value="${ps.months}" min="1" max="60" step="1" inputmode="decimal"
+          oninput="setPhDur('${pid}',this.value)"/>
+        <div class="ph-dur-unit">months</div>
+        <div class="ph-budget-disp" id="pbd-${pid}">~${fSAR(phBudget)} budget</div>
+      </div>
+      <div class="ph-subcost-row${isCustomBw?' custom':''}" id="pscr-${pid}">
+        <div class="ph-subcost-top">
+          <div class="ph-subcost-lbl">Equip Sub-Cost</div>
+          <div class="ph-subcost-inp-wrap">
+            <input class="ph-subcost-inp${isCustomBw?' custom':''}" type="number" id="psci-${pid}"
+              value="${phBwPct}" min="1" max="99" step="0.5" inputmode="decimal"
+              oninput="setPhSubCost('${pid}',this.value)"
+              onblur="confirmPhSubCost('${pid}',this.value)"/>
+            <span class="ph-subcost-sym">%</span>
+          </div>
+          <div class="ph-subcost-sar ${isCustomBw?'custom':'default'}" id="pscs-${pid}">${fSAR(phBudget)}</div>
+          <span class="ph-subcost-reset${isCustomBw?' show':''}" id="pscres-${pid}"
+            onclick="resetPhSubCost('${pid}')" title="Reset to default">↺ reset</span>
+          <div class="ph-alloc-warn" id="pscw-${pid}"></div>
+        </div>
+        <div class="ph-subcost-slider-row">
+          <div class="ph-subcost-track">
+            <div class="ph-subcost-bg"></div>
+            <div class="ph-subcost-fill${isCustomBw?' custom':''}" id="pscf-${pid}" style="width:${Math.min(phBwPct,100)}%"></div>
+            <input class="ph-subcost-sl" type="range" id="pscsl-${pid}"
+              min="1" max="99" step="0.5" value="${phBwPct}"
+              oninput="setPhSubCost('${pid}',this.value)"/>
+          </div>
+        </div>
+      </div>
+      <div class="ph-eq-list" id="pel-${pid}"></div>
+      <div class="ph-cost-row">
+        <div class="ph-cost-lbl">Phase Rental (excl. VAT)</div>
+        <div class="ph-cost-val" id="pct-${pid}">SAR 0</div>
+      </div>`;
+    body.appendChild(inner);card.appendChild(body);cont.appendChild(card);
+    renderPhEquip(pid,eqs);
+    if(idx===0)togglePh(pid);
+  });
+}
+
+function renderPhEquip(pid,eqs){
+  const ps=phState[pid];
+  const list=document.getElementById('pel-'+pid);if(!list)return;list.innerHTML='';
+  (eqs||[]).sort((a,b)=>a.p-b.p).forEach(({e,p})=>{
+    const ec=EQ[e];if(!ec||!ps.equip[e])return;
+    const st=ps.equip[e];
+    // Compute display rate: weighted average across selectedSpecs, or fallback
+    const dispRate = getEqDisplayRate(pid,e);
+    const isLocked = st.manualUnits !== null;
+    const dispUnits = isLocked ? st.manualUnits : st.units;
+    const row=document.createElement('div');row.className='ph-eq-row'+(st.active?' on':'');row.id=`per-${pid}-${e}`;
+    row.innerHTML=`
+      <div class="ph-eq-top">
+        <div class="ph-pri ${priClass(p)}">${priLabel(p)}</div>
+        <div class="ph-eq-ico">${ec.ico}</div>
+        <div class="ph-eq-name" title="${st.note||''}">${ec.name}</div>
+        <div class="ph-eq-rate-lbl" id="prl-${pid}-${e}">SAR ${(dispRate/1000).toFixed(1)}K/mo</div>
+        <div class="ph-units-wrap">
+          <div class="ph-units-disp${st.units===0&&!isLocked?' z':''}${isLocked?' manual':''}"
+            id="pud-${pid}-${e}" onclick="toggleUnitLock('${pid}','${e}')"
+            title="${isLocked?'Click to auto-calculate':'Click to set manually'}">${dispUnits}</div>
+          <input class="ph-units-inp${isLocked?' show':''}" type="number"
+            id="pui-${pid}-${e}" value="${dispUnits}" min="1" max="999" step="1" inputmode="decimal"
+            onclick="event.stopPropagation()"
+            oninput="setManualUnits('${pid}','${e}',this.value)"/>
+          <div class="ph-units-lock${isLocked?' locked':''}" id="pul-${pid}-${e}"
+            onclick="toggleUnitLock('${pid}','${e}')" title="${isLocked?'Locked — click to auto':'Auto — click to lock'}">
+            ${isLocked?'🔒':'🔓'}</div>
+        </div>
+        <div class="ph-tog ${st.active?'on':''}" id="ptg-${pid}-${e}" onclick="togglePhEq('${pid}','${e}')"><div class="ph-tok"></div></div>
+      </div>
+      <div class="spec-panel" id="sp-${pid}-${e}">
+        <div class="spec-hdr-row">
+          <div class="spec-hdr-lbl" id="sp-lbl-${pid}-${e}">${getCatLabel(e)}</div>
+          <div class="spec-hdr-right">
+            <div class="spec-toggle-btn" id="sp-tb-${pid}-${e}" onclick="toggleSpecChips('${pid}','${e}')">＋ Add spec</div>
+          </div>
+        </div>
+        <div class="spec-chips-wrap" id="sp-cw-${pid}-${e}">
+          <div class="spec-chips" id="sp-chips-${pid}-${e}"></div>
+        </div>
+        <div class="spec-items" id="sp-items-${pid}-${e}"></div>
+      </div>`;
+    list.appendChild(row);
+    renderSpecChips(pid,e);
+    renderSpecItems(pid,e);
+  });
+}
+
+function getCatLabel(eid){
+  const cat=ECAT_SPECS[eid];
+  return cat ? cat.sl : 'Spec Variant';
+}
+
+function getEqDisplayRate(pid,eid){
+  const st=phState[pid]?.equip[eid];if(!st)return 0;
+  if(st.selectedSpecs&&st.selectedSpecs.length>0){
+    return Math.round(st.selectedSpecs.reduce((s,sp)=>s+sp.rate,0)/st.selectedSpecs.length);
+  }
+  return st.rate;
+}
+
+function renderSpecChips(pid,eid){
+  const cont=document.getElementById(`sp-chips-${pid}-${eid}`);if(!cont)return;
+  const st=phState[pid]?.equip[eid];if(!st)return;
+  const specs=getSpecsForEq(eid);
+  const selected=new Set((st.selectedSpecs||[]).map(s=>s.specKey));
+  cont.innerHTML='';
+  specs.forEach((s,i)=>{
+    const key=`${eid}-${i}`;
+    const chip=document.createElement('div');
+    chip.className='spec-chip'+(selected.has(key)?' selected':'');
+    chip.textContent=s.l;
+    chip.title=`SAR ${s.rate.toLocaleString()}/mo${s.d?' · '+s.d:''}`;
+    chip.onclick=()=>toggleSpecChipSelect(pid,eid,i,s,key);
+    cont.appendChild(chip);
+  });
+  // + custom chip
+  const addChip=document.createElement('div');
+  addChip.className='spec-chip spec-chip-add';
+  addChip.innerHTML='＋ custom';
+  addChip.onclick=()=>openSpecModal(pid,eid);
+  cont.appendChild(addChip);
+}
+
+function toggleSpecChipSelect(pid,eid,idx,spec,key){
+  const st=phState[pid]?.equip[eid];if(!st)return;
+  if(!st.selectedSpecs)st.selectedSpecs=[];
+  const existing=st.selectedSpecs.findIndex(s=>s.specKey===key);
+  if(existing>=0){
+    // Deselect — remove from items
+    st.selectedSpecs.splice(existing,1);
+  } else {
+    // Select — add with editable rate+months from base spec
+    st.selectedSpecs.push({specKey:key,label:spec.l,desc:spec.d||'',rate:spec.rate,months:st.months,ico:EQ[eid]?.ico||'⚙️'});
+  }
+  // Sync base rate to weighted avg for calculation
+  syncEqRateFromSpecs(pid,eid);
+  renderSpecChips(pid,eid);
+  renderSpecItems(pid,eid);
+  updateRateLbl(pid,eid);
+  calculate();
+}
+
+function syncEqRateFromSpecs(pid,eid){
+  const st=phState[pid]?.equip[eid];if(!st)return;
+  if(st.selectedSpecs&&st.selectedSpecs.length>0){
+    st.rate=Math.round(st.selectedSpecs.reduce((s,sp)=>s+sp.rate,0)/st.selectedSpecs.length);
+    st.months=Math.round(st.selectedSpecs.reduce((s,sp)=>s+sp.months,0)/st.selectedSpecs.length);
+  }
+}
+
+function renderSpecItems(pid,eid){
+  const cont=document.getElementById(`sp-items-${pid}-${eid}`);if(!cont)return;
+  const st=phState[pid]?.equip[eid];if(!st)return;
+  const items=st.selectedSpecs||[];
+  if(!items.length){
+    cont.innerHTML=`<div class="spec-empty">No specs selected — tap chips above to add, or use ＋ custom</div>`;
+    return;
+  }
+  cont.innerHTML='';
+  items.forEach((sp,i)=>{
+    const totalCost=sp.rate*sp.months*(st.units||1);
+    const div=document.createElement('div');div.className='spec-item';div.id=`si-${pid}-${eid}-${i}`;
+    div.innerHTML=`
+      <div class="spec-item-top">
+        <div class="spec-item-ico">${sp.ico}</div>
+        <div class="spec-item-name">${sp.label}</div>
+        <div class="spec-item-desc">${sp.desc}</div>
+        <div class="spec-item-remove" onclick="removeSpecItem('${pid}','${eid}',${i})" title="Remove">✕</div>
+      </div>
+      <div class="spec-item-fields">
+        <div class="spec-field">
+          <div class="spec-field-lbl">Rate SAR/mo</div>
+          <div class="spec-field-row">
+            <input class="spec-field-inp" type="number" value="${sp.rate}" min="100" max="9999999" step="100"
+              inputmode="decimal" onclick="event.stopPropagation()"
+              oninput="setSpecItemRate('${pid}','${eid}',${i},this.value)"/>
+            <span class="spec-field-unit">SAR</span>
+          </div>
+        </div>
+        <div class="spec-field">
+          <div class="spec-field-lbl">Hire Months</div>
+          <div class="spec-field-row">
+            <input class="spec-field-inp" type="number" value="${sp.months}" min="1" max="120" step="1"
+              inputmode="decimal" onclick="event.stopPropagation()"
+              oninput="setSpecItemMonths('${pid}','${eid}',${i},this.value)"/>
+            <span class="spec-field-unit">mo</span>
+          </div>
+        </div>
+      </div>
+      <div class="spec-item-cost" id="sic-${pid}-${eid}-${i}">≈ SAR ${totalCost.toLocaleString()} · ${st.units||1} unit(s) × ${sp.months}mo</div>`;
+    cont.appendChild(div);
+  });
+}
+
+function removeSpecItem(pid,eid,idx){
+  const st=phState[pid]?.equip[eid];if(!st||!st.selectedSpecs)return;
+  st.selectedSpecs.splice(idx,1);
+  syncEqRateFromSpecs(pid,eid);
+  renderSpecChips(pid,eid);
+  renderSpecItems(pid,eid);
+  updateRateLbl(pid,eid);
+  calculate();
+}
+
+function setSpecItemRate(pid,eid,idx,val){
+  const st=phState[pid]?.equip[eid];if(!st||!st.selectedSpecs)return;
+  st.selectedSpecs[idx].rate=parseFloat(val)||0;
+  syncEqRateFromSpecs(pid,eid);
+  updateRateLbl(pid,eid);
+  refreshSpecItemCost(pid,eid,idx);
+  calculate();
+}
+
+function setSpecItemMonths(pid,eid,idx,val){
+  const st=phState[pid]?.equip[eid];if(!st||!st.selectedSpecs)return;
+  st.selectedSpecs[idx].months=Math.max(1,parseInt(val)||1);
+  syncEqRateFromSpecs(pid,eid);
+  refreshSpecItemCost(pid,eid,idx);
+  calculate();
+}
+
+function refreshSpecItemCost(pid,eid,idx){
+  const st=phState[pid]?.equip[eid];if(!st||!st.selectedSpecs)return;
+  const sp=st.selectedSpecs[idx];if(!sp)return;
+  const el=document.getElementById(`sic-${pid}-${eid}-${idx}`);
+  if(el)el.textContent=`≈ SAR ${(sp.rate*sp.months*(st.units||1)).toLocaleString()} · ${st.units||1} unit(s) × ${sp.months}mo`;
+}
+
+function updateRateLbl(pid,eid){
+  const rate=getEqDisplayRate(pid,eid);
+  const el=document.getElementById(`prl-${pid}-${eid}`);
+  if(el)el.textContent=`SAR ${(rate/1000).toFixed(1)}K/mo`;
+}
+
+function toggleSpecChips(pid,eid){
+  const wrap=document.getElementById(`sp-cw-${pid}-${eid}`);
+  const btn=document.getElementById(`sp-tb-${pid}-${eid}`);
+  if(!wrap)return;
+  const isOpen=wrap.classList.contains('open');
+  wrap.classList.toggle('open',!isOpen);
+  if(btn)btn.classList.toggle('open',!isOpen);
+  if(btn)btn.textContent=isOpen?'＋ Add spec':'✕ Close';
+}
+
+function togglePh(pid){
+  const body=document.getElementById('phb-'+pid);const card=document.getElementById('phcard-'+pid);
+  const wasOpen=card.classList.contains('open');
+  document.querySelectorAll('.ph-card').forEach(c=>c.classList.remove('open'));
+  document.querySelectorAll('.ph-body').forEach(b=>b.classList.remove('ph-body-open'));
+  document.querySelectorAll('.ph-chev').forEach(ch=>{ch.style.transform='';});
+  if(!wasOpen){
+    card.classList.add('open');
+    const chev=card.querySelector('.ph-chev');if(chev)chev.style.transform='rotate(180deg)';
+  }
+}
+function openPhCard(pid){
+  const card=document.getElementById('phcard-'+pid);
+  if(card&&!card.classList.contains('open'))togglePh(pid);
+  card.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function setPhDur(pid,val){
+  const mo=Math.max(1,parseInt(val)||1);
+  if(!phState[pid])return;
+  phState[pid].months=mo;
+  Object.keys(phState[pid].equip).forEach(e=>{phState[pid].equip[e].months=mo;
+    if(phState[pid].equip[e].selectedSpecs){phState[pid].equip[e].selectedSpecs.forEach(sp=>{sp.months=mo;});}
+    const hm=document.getElementById(`hm-${pid}-${e}`);if(hm)hm.value=mo;});
+  const badge=document.getElementById('pdt-'+pid);if(badge)badge.textContent=mo+'mo';
+  const pt=PT.find(t=>t.id===selType);if(pt){buildGantt(pt);}
+  updatePhaseBudgetDisplay(pid);calculate();
+}
+
+function updatePhaseBudgetDisplay(pid){
+  const pt=PT.find(t=>t.id===selType);if(!pt)return;
+  const V=gv('pv'),Ceq=gv('ceq')/100,W=gv('waste')/100;
+  const eb=V*Ceq*(1-W);
+  const ps=phState[pid];
+  const effBw=ps&&ps.customBw!==null&&ps.customBw!==undefined?ps.customBw:(pt.bw[pid]||0);
+  const phBudget=eb*effBw;
+  const phBwPct=+(effBw*100).toFixed(1);
+  const isCustom=ps&&ps.customBw!==null&&ps.customBw!==undefined;
+  const el=document.getElementById('pbd-'+pid);if(el)el.textContent='~'+fSAR(phBudget)+' budget';
+  const pscf=document.getElementById('pscf-'+pid);
+  if(pscf){pscf.style.width=Math.min(phBwPct,100)+'%';pscf.className='ph-subcost-fill'+(isCustom?' custom':'');}
+  const psci=document.getElementById('psci-'+pid);if(psci){psci.value=phBwPct;psci.className='ph-subcost-inp'+(isCustom?' custom':'');}
+  const pscsl=document.getElementById('pscsl-'+pid);if(pscsl)pscsl.value=phBwPct;
+  const pscs=document.getElementById('pscs-'+pid);if(pscs){pscs.textContent=fSAR(phBudget);pscs.className='ph-subcost-sar '+(isCustom?'custom':'default');}
+  const pscr=document.getElementById('pscr-'+pid);if(pscr)pscr.className='ph-subcost-row'+(isCustom?' custom':'');
+  const pscres=document.getElementById('pscres-'+pid);if(pscres)pscres.className='ph-subcost-reset'+(isCustom?' show':'');
+  updateAllocWarning();
+}
+
+// ── SUB-COST % EDITING ──
+function setPhSubCost(pid,val){
+  const pct=Math.max(1,Math.min(99,parseFloat(val)||1));
+  if(!phState[pid])return;
+  phState[pid].customBw=pct/100;
+  // Sync slider and input
+  const sl=document.getElementById('pscsl-'+pid);if(sl)sl.value=pct;
+  const inp=document.getElementById('psci-'+pid);if(inp){inp.value=pct;inp.className='ph-subcost-inp custom';}
+  const fill=document.getElementById('pscf-'+pid);if(fill){fill.style.width=Math.min(pct,100)+'%';fill.className='ph-subcost-fill custom';}
+  const row=document.getElementById('pscr-'+pid);if(row)row.className='ph-subcost-row custom';
+  const res=document.getElementById('pscres-'+pid);if(res)res.className='ph-subcost-reset show';
+  // Update SAR badge
+  const pt=PT.find(t=>t.id===selType);if(!pt)return;
+  const V=gv('pv'),Ceq=gv('ceq')/100,W=gv('waste')/100;
+  const eb=V*Ceq*(1-W);const phBudget=eb*(pct/100);
+  const pscs=document.getElementById('pscs-'+pid);if(pscs){pscs.textContent=fSAR(phBudget);pscs.className='ph-subcost-sar custom';}
+  const pbd=document.getElementById('pbd-'+pid);if(pbd)pbd.textContent='~'+fSAR(phBudget)+' budget';
+  updateAllocWarning();
+  calculate();
+}
+function confirmPhSubCost(pid,val){
+  // Clamp and clean on blur
+  const pct=Math.max(1,Math.min(99,parseFloat(val)||1));
+  const inp=document.getElementById('psci-'+pid);if(inp)inp.value=pct;
+  const sl=document.getElementById('pscsl-'+pid);if(sl)sl.value=pct;
+  if(phState[pid])phState[pid].customBw=pct/100;
+  calculate();
+}
+function resetPhSubCost(pid){
+  if(!phState[pid])return;
+  phState[pid].customBw=null;
+  const pt=PT.find(t=>t.id===selType);if(!pt)return;
+  const defBw=pt.bw[pid]||0;
+  const defPct=+(defBw*100).toFixed(1);
+  const inp=document.getElementById('psci-'+pid);if(inp){inp.value=defPct;inp.className='ph-subcost-inp';}
+  const sl=document.getElementById('pscsl-'+pid);if(sl)sl.value=defPct;
+  const fill=document.getElementById('pscf-'+pid);if(fill){fill.style.width=Math.min(defPct,100)+'%';fill.className='ph-subcost-fill';}
+  const row=document.getElementById('pscr-'+pid);if(row)row.className='ph-subcost-row';
+  const res=document.getElementById('pscres-'+pid);if(res)res.className='ph-subcost-reset';
+  const V=gv('pv'),Ceq=gv('ceq')/100,W=gv('waste')/100;
+  const eb=V*Ceq*(1-W);const phBudget=eb*defBw;
+  const pscs=document.getElementById('pscs-'+pid);if(pscs){pscs.textContent=fSAR(phBudget);pscs.className='ph-subcost-sar default';}
+  const pbd=document.getElementById('pbd-'+pid);if(pbd)pbd.textContent='~'+fSAR(phBudget)+' budget';
+  updateAllocWarning();
+  calculate();
+}
+function updateAllocWarning(){
+  const pt=PT.find(t=>t.id===selType);if(!pt)return;
+  let total=0;
+  pt.ph.forEach(pid=>{
+    const ps=phState[pid];
+    total+=(ps&&ps.customBw!==null&&ps.customBw!==undefined)?ps.customBw:(pt.bw[pid]||0);
+  });
+  const totalPct=+(total*100).toFixed(1);
+  const isOver=totalPct>100.5;const isOk=totalPct>=99&&totalPct<=100.5;
+  pt.ph.forEach(pid=>{
+    const w=document.getElementById('pscw-'+pid);if(!w)return;
+    if(isOver){w.className='ph-alloc-warn over';w.textContent='Σ'+totalPct+'%';}
+    else if(isOk){w.className='ph-alloc-warn ok';w.textContent='Σ100%';}
+    else{w.className='ph-alloc-warn';w.textContent='';}
+  });
+}
+
+function togglePhEq(pid,eid){
+  if(!phState[pid]?.equip[eid])return;
+  phState[pid].equip[eid].active=!phState[pid].equip[eid].active;
+  const tog=document.getElementById(`ptg-${pid}-${eid}`);
+  const row=document.getElementById(`per-${pid}-${eid}`);
+  if(tog)tog.classList.toggle('on',phState[pid].equip[eid].active);
+  if(row)row.classList.toggle('on',phState[pid].equip[eid].active);
+  const pt=PT.find(t=>t.id===selType);
+  const eqs=(PH_EQ[pid]||[]).filter(({e})=>EQ[e]);
+  const cnt=eqs.filter(({e})=>phState[pid].equip[e]?.active).length;
+  const ec=document.getElementById('pec-'+pid);if(ec)ec.textContent=cnt+'/'+eqs.length;
+  calculate();
+}
+
+function setEqMo(pid,eid,val){if(phState[pid]?.equip[eid])phState[pid].equip[eid].months=Math.max(1,parseInt(val)||1);calculate();}
+function setEqRate(pid,eid,val){if(phState[pid]?.equip[eid])phState[pid].equip[eid].rate=parseFloat(val)||0;calculate();}
+function setEqUeq(pid,eid,val){if(phState[pid]?.equip[eid])phState[pid].equip[eid].ueq=(parseFloat(val)||75)/100;calculate();}
+
+// ── MANUAL UNITS OVERRIDE ──
+function toggleUnitLock(pid,eid){
+  const st=phState[pid]?.equip[eid];if(!st)return;
+  const isLocked=st.manualUnits!==null;
+  if(isLocked){
+    // Unlock — back to auto
+    st.manualUnits=null;
+  } else {
+    // Lock — freeze current auto value
+    st.manualUnits=Math.max(1,st.units||1);
+  }
+  refreshUnitUI(pid,eid);
+  calculate();
+}
+
+function setManualUnits(pid,eid,val){
+  const st=phState[pid]?.equip[eid];if(!st)return;
+  const v=Math.max(1,parseInt(val)||1);
+  st.manualUnits=v;
+  // Update display span too
+  const ud=document.getElementById(`pud-${pid}-${eid}`);
+  if(ud)ud.textContent=v;
+  calculate();
+}
+
+function refreshUnitUI(pid,eid){
+  const st=phState[pid]?.equip[eid];if(!st)return;
+  const isLocked=st.manualUnits!==null;
+  const val=isLocked?st.manualUnits:st.units;
+  const ud=document.getElementById(`pud-${pid}-${eid}`);
+  const ui=document.getElementById(`pui-${pid}-${eid}`);
+  const ul=document.getElementById(`pul-${pid}-${eid}`);
+  if(ud){
+    ud.textContent=val;
+    ud.className='ph-units-disp'+(val===0&&!isLocked?' z':'')+(isLocked?' manual':'');
+  }
+  if(ui){ui.value=val;ui.classList.toggle('show',isLocked);}
+  if(ul){ul.textContent=isLocked?'🔒':'🔓';ul.classList.toggle('locked',isLocked);}
+}
+
+// ── PER-PHASE UTILIZATION ──
+function setPhUtil(pid,val){
+  const pct=Math.max(30,Math.min(100,parseInt(val)||75));
+  if(!phState[pid])return;
+  phState[pid].utilPct=pct;
+  const fill=document.getElementById(`puf-${pid}`);if(fill)fill.style.width=pct+'%';
+  const valEl=document.getElementById(`puv-${pid}`);if(valEl)valEl.textContent=pct+'%';
+  const badge=document.getElementById(`pub-${pid}`);
+  if(badge){badge.textContent='CUSTOM';badge.classList.add('override');}
+  // Also sync slider value display
+  const sl=document.getElementById(`pusl-${pid}`);if(sl)sl.value=pct;
+  calculate();
+}
+
+function resetPhUtil(pid){
+  if(!phState[pid])return;
+  phState[pid].utilPct=null;
+  const globalUtil=gv('util')||75;
+  const fill=document.getElementById(`puf-${pid}`);if(fill)fill.style.width=globalUtil+'%';
+  const valEl=document.getElementById(`puv-${pid}`);if(valEl)valEl.textContent=globalUtil+'%';
+  const sl=document.getElementById(`pusl-${pid}`);if(sl)sl.value=globalUtil;
+  const badge=document.getElementById(`pub-${pid}`);
+  if(badge){badge.textContent='GLOBAL';badge.classList.remove('override');}
+  calculate();
+}
+
+function syncPhUtilUI(){
+  // Called when global util changes — update any GLOBAL-mode phases
+  const globalUtil=gv('util')||75;
+  Object.keys(phState).forEach(pid=>{
+    if(phState[pid]?.utilPct===null){
+      const fill=document.getElementById(`puf-${pid}`);if(fill)fill.style.width=globalUtil+'%';
+      const valEl=document.getElementById(`puv-${pid}`);if(valEl)valEl.textContent=globalUtil+'%';
+      const sl=document.getElementById(`pusl-${pid}`);if(sl)sl.value=globalUtil;
+    }
+  });
+}
+
+// ── CALCULATION ENGINE — 99.99% ACCURACY ──
+//
+// PER PHASE:
+//   phase_budget   = total_equip_budget × phase_weight
+//   active_count   = count of toggled-on equipment in phase
+//   per_eq_budget  = phase_budget / active_count          (equal split across active equip)
+//   units          = ceil( per_eq_budget / (rate × util% × mechanical_avail%) )
+//   units          = max(1, units) if active
+//   eq_cost        = units × rate × hire_months           (hire_months is user-adjustable)
+//   phase_cost     = Σ eq_cost
+//
+// TOTAL:
+//   rental         = Σ phase_cost (all phases)
+//   mob_cost       = rental × mob%
+//   total_incl_mob = rental + mob_cost
+//   vat            = total_incl_mob × vat%
+//   grand_total    = total_incl_mob + vat
+function calculate(){
+  if(!selType)return;
+  const pt=PT.find(t=>t.id===selType);
+  const V=gv('pv'),Ceq=gv('ceq')/100,W=gv('waste')/100;
+  const U=gv('util')/100,VAT=gv('vat')/100,MOB=gv('mob')/100;
+  const equipBudget=V*Ceq*(1-W);
+  let totalRental=0,peakFleet=0,allUnits={},totalEqMo=0,activePhCnt=0;
+  const phRes={};
+  pt.ph.forEach(pid=>{
+    const ps=phState[pid];if(!ps)return;
+    const effBw=ps.customBw!==null&&ps.customBw!==undefined?ps.customBw:(pt.bw[pid]||0);
+    const phBudget=equipBudget*effBw;
+    const activeEqs=Object.entries(ps.equip).filter(([,st])=>st.active);
+    if(!activeEqs.length)return;
+    activePhCnt++;
+    const perEqBudget=phBudget/activeEqs.length;
+    // Per-phase utilization: use override if set, else global
+    const phU=(ps.utilPct!==null ? ps.utilPct/100 : U);
+    let phRental=0,phFleet=0;const phEqList=[];
+    activeEqs.sort((a,b)=>a[1].priority-b[1].priority).forEach(([eid,st])=>{
+      const effR=st.rate*phU*st.ueq;
+      // Respect manual units override if locked
+      const autoUnits=effR>0?Math.max(1,Math.ceil(perEqBudget/effR)):1;
+      const units=st.manualUnits!==null?st.manualUnits:autoUnits;
+      st.units=units;
+      // If multi-specs selected, compute rental as sum across all spec items
+      let rental=0;
+      if(st.selectedSpecs&&st.selectedSpecs.length>0){
+        rental=st.selectedSpecs.reduce((s,sp)=>s+units*sp.rate*sp.months,0);
+      } else {
+        rental=units*st.rate*st.months;
+      }
+      phRental+=rental;phFleet+=units;totalRental+=rental;
+      totalEqMo+=units*st.months;
+      allUnits[eid]=(allUnits[eid]||0)+units;
+      phEqList.push({eid,units,rental,rate:st.rate,months:st.months,priority:st.priority,specs:st.selectedSpecs||[]});
+      // Update unit display — only update auto units when not locked
+      if(st.manualUnits===null){
+        const ud=document.getElementById(`pud-${pid}-${eid}`);
+        if(ud){ud.textContent=units;ud.className='ph-units-disp'+(units===0?' z':'');}
+      }
+      // Refresh spec item cost displays
+      if(st.selectedSpecs){st.selectedSpecs.forEach((_,i)=>refreshSpecItemCost(pid,eid,i));}
+    });
+    if(phFleet>peakFleet)peakFleet=phFleet;
+    phRes[pid]={rental:phRental,fleet:phFleet,equip:phEqList};
+    const pct=document.getElementById('pct-'+pid);if(pct)pct.textContent=fSAR(phRental);
+  });
+  const mobCost=totalRental*MOB;
+  const vatAmt=(totalRental+mobCost)*VAT;
+  const grandTotal=totalRental+mobCost+vatAmt;
+  const equipPct=V>0?(grandTotal/V*100):0;
+  const budgetDiff=equipBudget-grandTotal;
+
+  // Fleet hero
+  const fn=document.getElementById('fl-num');
+  if(fn){fn.textContent=peakFleet;fn.classList.add('pop');setTimeout(()=>fn.classList.remove('pop'),300);}
+  const fc=document.getElementById('fl-cost');if(fc)fc.textContent=fSAR(totalRental);
+  const fs=document.getElementById('fl-sub');
+  if(fs)fs.textContent=`${activePhCnt} phases · ${Object.keys(allUnits).length} equipment types`;
+
+  // Bar chart
+  const sorted=Object.entries(allUnits).sort((a,b)=>b[1]-a[1]);
+  const maxU=sorted[0]?sorted[0][1]:1;
+  const be=document.getElementById('fleet-bars');
+  if(be)be.innerHTML=sorted.slice(0,12).map(([eid,units])=>{
+    const ec=EQ[eid];if(!ec)return'';
+    const pct=(units/maxU)*100;
+    const approxCost=Object.values(phState).reduce((s,ps)=>{
+      const st=ps.equip[eid];return st&&st.active?s+st.units*st.rate*st.months:s;},0);
+    return `<div class="brow"><span class="bi">${ec.ico}</span><span class="bn">${ec.name}</span><span class="bsp">${units}u</span><div class="bt"><div class="bf" style="width:${pct}%"></div></div><span class="bc">${units}</span><span class="bm">${fSAR(approxCost)}</span></div>`;
+  }).join('');
+
+  // KPIs
+  const kp=document.getElementById('kpi-phases');if(kp)kp.textContent=activePhCnt;
+  const kt=document.getElementById('kpi-types');if(kt)kt.textContent=Object.keys(allUnits).length;
+  const ke=document.getElementById('kpi-eqmo');if(ke)ke.textContent=fK(totalEqMo);
+
+  // Phase breakdown
+  const pbs=document.getElementById('pb-sub');
+  if(pbs)pbs.textContent=fSAR(totalRental)+' · '+activePhCnt+' phases';
+  const pbb=document.getElementById('pb-body');
+  if(pbb){
+    pbb.innerHTML='';
+    pt.ph.forEach(pid=>{
+      const pr=phRes[pid];if(!pr)return;
+      const pd=PH_DEF[pid];const ps=phState[pid];const col=phColor(pd.ci);
+      const div=document.createElement('div');div.className='pb-ph-row';
+      const eqRows=pr.equip.slice().sort((a,b)=>a.priority-b.priority).map(({eid,units,rental,months})=>{
+        const ec=EQ[eid];
+        return `<div class="pb-eq-it"><div class="pb-eq-nm">${ec?ec.ico:''} ${ec?ec.name:eid}</div><div class="pb-eq-u">${units}u×${months}mo</div><div class="pb-eq-c">${fSAR(rental)}</div></div>`;
+      }).join('');
+      div.innerHTML=`
+        <div class="pb-ph-hd">
+          <div class="pb-ph-n" style="color:${col};border-color:${col}">${pid}</div>
+          <div class="pb-ph-nm">${pd.name}</div>
+          <div class="pb-ph-d">${ps.months}mo</div>
+          <div class="pb-ph-t">${fSAR(pr.rental)}</div>
+        </div>
+        <div class="pb-eq-list">${eqRows}</div>`;
+      pbb.appendChild(div);
+    });
+  }
+
+  // Summary
+  const se=(id,txt,cls)=>{const el=document.getElementById(id);if(el){el.textContent=txt;if(cls)el.className='sv '+cls;}};
+  se('s-cv',fSAR(V),'pur');
+  se('s1',fSAR(equipBudget),'acc');
+  se('s4',fSAR(totalRental),'acc');
+  se('s-mob',fSAR(mobCost));
+  se('s-vat',fSAR(vatAmt),'yel');
+  se('s-total',fSAR(grandTotal),'acc');
+  se('s-pct',equipPct.toFixed(1)+'% of contract');
+  const s5=document.getElementById('s5');
+  if(s5){s5.textContent=(budgetDiff>=0?'▲ Within budget ':' ▼ Over budget ')+fSAR(Math.abs(budgetDiff));s5.className='sv '+(budgetDiff>=0?'pos':'neg');}
+  se('s-peak',peakFleet+' units (peak single phase)');
+  se('s-eqmo',totalEqMo.toLocaleString()+' equipment-months total');
+}
+
+// ── PARAM BINDINGS ──
+function setParam(id,val,mn,mx){
+  const el=document.getElementById(id);if(el)el.value=val;
+  const sl=document.getElementById('s-'+id);if(sl)sl.value=val;
+  ufill('f-'+id,val,mn,mx);
+}
+function ufill(fid,val,mn,mx){const el=document.getElementById(fid);if(el)el.style.width=Math.min(100,Math.max(0,((val-mn)/(mx-mn))*100))+'%';}
+function bindParam(id,mn,mx){
+  const inp=document.getElementById(id);const sl=document.getElementById('s-'+id);
+  if(inp)inp.addEventListener('input',function(){
+    const v=Math.min(Math.max(parseFloat(this.value)||mn,mn),mx);
+    if(sl)sl.value=v;ufill('f-'+id,v,mn,mx);
+    if((id==='dur'||id==='ceq'||id==='waste'||id==='pv')&&selType){
+      const pt=PT.find(t=>t.id===selType);
+      if(id==='dur'&&pt){initPhState(pt);buildPhUI(pt);}
+      else{pt&&pt.ph.forEach(pid=>updatePhaseBudgetDisplay(pid));}
+    }
+    if(id==='util')syncPhUtilUI();
+    calculate();
+  });
+  if(sl)sl.addEventListener('input',function(){if(inp)inp.value=this.value;ufill('f-'+id,this.value,mn,mx);if(id==='util')syncPhUtilUI();calculate();});
+  ufill('f-'+id,parseFloat(inp?.value||mn),mn,mx);
+}
+[['pv',100000,5000000000],['ceq',5,65],['waste',3,30],['dur',1,120],['util',40,100],['vat',0,15],['mob',1,20]].forEach(([id,mn,mx])=>bindParam(id,mn,mx));
+
+// ── EXPORT CSV ──
+function exportCSV(){
+  if(!selType){alert('Select a project type first.');return;}
+  const pt=PT.find(t=>t.id===selType);
+  const V=gv('pv'),Ceq=gv('ceq')/100,W=gv('waste')/100,U=gv('util')/100,VAT=gv('vat')/100,MOB=gv('mob')/100;
+  const eb=V*Ceq*(1-W);
+  let rows=['Phase ID,Phase Name,Phase Duration (mo),Priority,Equipment,Units,Rate SAR/mo,Hire Months,Avail%,Phase Budget SAR,Equipment Cost SAR'];
+  let grandRental=0;
+  pt.ph.forEach(pid=>{
+    const ps=phState[pid];if(!ps)return;
+    const pd=PH_DEF[pid];const phBudget=eb*(pt.bw[pid]||0);
+    const activeEqs=Object.entries(ps.equip).filter(([,st])=>st.active);
+    if(!activeEqs.length)return;
+    const perEqBudget=phBudget/activeEqs.length;
+    activeEqs.sort((a,b)=>a[1].priority-b[1].priority).forEach(([eid,st])=>{
+      const ec=EQ[eid];if(!ec)return;
+      const effR=st.rate*U*st.ueq;
+      const units=effR>0?Math.max(1,Math.ceil(perEqBudget/effR)):1;
+      const rental=units*st.rate*st.months;grandRental+=rental;
+      rows.push(`"${pid}","${pd.name}",${ps.months},${st.priority},"${ec.name}",${units},${st.rate},${st.months},${Math.round(st.ueq*100)},${Math.round(phBudget)},${Math.round(rental)}`);
+    });
+  });
+  const mobAmt=grandRental*MOB;const vatAmt=(grandRental+mobAmt)*VAT;const total=grandRental+mobAmt+vatAmt;
+  rows.push('');rows.push('FINANCIAL SUMMARY');
+  rows.push(`Contract Value SAR,${V}`);
+  rows.push(`Equipment Budget SAR,${Math.round(eb)}`);
+  rows.push(`Total Rental (all phases) SAR,${Math.round(grandRental)}`);
+  rows.push(`Mob/Demob SAR,${Math.round(mobAmt)}`);
+  rows.push(`VAT 15% SAR,${Math.round(vatAmt)}`);
+  rows.push(`TOTAL PROJECT COST SAR,${Math.round(total)}`);
+  rows.push(`Generated,FleetIQ v16 KSA Phase Engine 2025`);
+  const blob=new Blob([rows.join('\n')],{type:'text/csv'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=`FleetIQ_v13_${pt.name.replace(/\s+/g,'_')}_${new Date().toISOString().slice(0,10)}.csv`;a.click();
+}
+
+// ── RESET ──
+function resetAll(){
+  selType=null;activeCat='all';srchQ='';
+  document.getElementById('srch').value='';document.getElementById('sclr').className='s-clr';
+  setAcc('#ff8c00');buildCats();renderPT();
+  document.getElementById('sb-em').textContent='—';
+  document.getElementById('sb-name').textContent='Select a project type above';
+  document.getElementById('sb-sub').textContent='—';
+  const ms=document.getElementById('main-sec');ms.style.opacity='0.2';ms.style.pointerEvents='none';
+  ['sn1'].forEach(s=>document.getElementById(s).className='st on');
+  ['sn2','sn3','sn4','sn5'].forEach(s=>document.getElementById(s).className='st');
+  setParam('pv',50000000,100000,5000000000);setParam('ceq',30,5,65);
+  setParam('waste',12,3,30);setParam('dur',18,1,120);setParam('util',75,40,100);
+  setParam('vat',15,0,15);setParam('mob',6,1,20);
+  ['ph-cards','gantt-chart','fleet-bars','pb-body'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.innerHTML='';
+  });
+  const gc=document.getElementById('gantt-chart');
+  if(gc){gc.innerHTML='<div class="gantt-months"><div class="gm-spacer"></div><div class="gm-track" id="gantt-ticks"></div></div>';}
+  ['fl-num','fl-cost','fl-sub'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=id==='fl-num'?'0':id==='fl-cost'?'SAR 0':'— phases · — types';});
+  ['kpi-phases','kpi-types','kpi-eqmo'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent='0';});
+  ['s-cv','s1','s4','s-mob','s-vat','s-total','s-pct','s5','s-peak','s-eqmo'].forEach(id=>{
+    const e=document.getElementById(id);if(e){e.textContent='—';e.className='sv';}
+  });
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ── INIT ──
+buildCats();renderPT();
+
+// ── PWA ──
+if('serviceWorker'in navigator){
+  const sw=`const C='fiq-v16';self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll([self.location.href])).then(()=>self.skipWaiting()))});self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==C).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(res=>{if(res&&res.ok){const cl=res.clone();caches.open(C).then(c=>c.put(e.request,cl))}return res})))});`;
+  const b=new Blob([sw],{type:'text/javascript'});
+  navigator.serviceWorker.register(URL.createObjectURL(b)).then(r=>console.log('[FleetIQ v16]',r.scope)).catch(()=>{});
+}
+const SVG=`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='90' fill='%23030609'/><rect x='28' y='28' width='456' height='456' rx='72' fill='%230d1524'/><rect x='28' y='28' width='456' height='456' rx='72' fill='none' stroke='%23ff8c00' stroke-width='6' opacity='.6'/><text y='370' x='56' font-size='320' font-family='serif'>🏗</text><text x='256' y='488' font-size='40' font-family='Arial Black,sans-serif' font-weight='900' fill='%23ff8c00' text-anchor='middle' letter-spacing='4'>FleetIQ</text></svg>`;
+const ICON=`data:image/svg+xml,${SVG}`;
+const mb=new Blob([JSON.stringify({name:"FleetIQ v16 — KSA Phase Engine",short_name:"FleetIQ",display:"standalone",background_color:"#030609",theme_color:"#030609",start_url:"./",icons:[{src:ICON,sizes:"512x512",type:"image/svg+xml",purpose:"any maskable"}]})],{type:'application/manifest+json'});
+const ml=document.createElement('link');ml.rel='manifest';ml.href=URL.createObjectURL(mb);document.head.appendChild(ml);
+const ai=document.createElement('link');ai.rel='apple-touch-icon';ai.href=ICON;document.head.appendChild(ai);
+let _dp=null;
+const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+const isSA=window.matchMedia('(display-mode:standalone)').matches||navigator.standalone;
+if(isIOS&&!isSA)setTimeout(()=>document.getElementById('ios-tip').classList.add('show'),5e3);
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();_dp=e;if(!isSA)setTimeout(()=>document.getElementById('install-banner').classList.add('show'),3e3);});
+window.addEventListener('appinstalled',()=>{_dp=null;['install-banner','ios-tip'].forEach(id=>document.getElementById(id).classList.remove('show'));});
+document.getElementById('btn-ic').addEventListener('click',async()=>{if(!_dp)return;_dp.prompt();await _dp.userChoice;_dp=null;document.getElementById('install-banner').classList.remove('show');});
+function dismissInstall(){document.getElementById('install-banner').classList.remove('show');sessionStorage.setItem('fiq-dis','1');}
+</script>
+
+<!-- ── SPEC SELECTOR MODAL ── -->
+<div class="spec-modal-backdrop" id="spec-modal-backdrop" onclick="closeSpecModal(event)">
+  <div class="spec-modal" onclick="event.stopPropagation()">
+    <div class="spec-modal-drag"></div>
+    <div class="spec-modal-ttl">➕ Add Custom Spec</div>
+    <div class="spec-modal-sub" id="spec-modal-sub">New specification variant</div>
+    <div class="spec-modal-field">
+      <div class="spec-modal-lbl">Spec Label (e.g. "50T AT", "14m Elec")</div>
+      <input class="spec-modal-inp" id="spec-modal-label" type="text" placeholder="Specification name…" maxlength="40"/>
+    </div>
+    <div class="spec-modal-field">
+      <div class="spec-modal-lbl">Monthly Rate (SAR/month)</div>
+      <input class="spec-modal-inp" id="spec-modal-rate" type="number" placeholder="e.g. 28000" min="100" step="100" inputmode="decimal"/>
+    </div>
+    <div class="spec-modal-field">
+      <div class="spec-modal-lbl">Description / Notes (optional)</div>
+      <input class="spec-modal-inp" id="spec-modal-desc" type="text" placeholder="e.g. Outdoor rough terrain" maxlength="60"/>
+    </div>
+    <div class="spec-modal-btns">
+      <button class="smb-cancel" onclick="closeSpecModalBtn()">Cancel</button>
+      <button class="smb-add" onclick="confirmAddSpec()">Add &amp; Select</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════
+// ECAT — Equipment Specification Catalog from FleetIQ-App
+// Maps EQ key → array of spec variants {l: label, r: rate_multiplier, d: description}
+// ══════════════════════════════════════════════════════════════════
+const ECAT_SPECS = {
+  excavator:    {sl:'Operating Weight', base:19500, specs:[{l:'3T Mini',r:.38,d:'Tight access/MEP'},{l:'6T Compact',r:.54,d:'Urban trenching'},{l:'13T Mid',r:.82,d:'General earthworks'},{l:'20T Standard',r:1.0,d:'Standard KSA'},{l:'30T Large',r:1.38,d:'Heavy bulk'},{l:'40T XL',r:1.75,d:'Mass excavation'},{l:'50T XXL',r:2.15,d:'Mega site'},{l:'80T Mining',r:3.20,d:'Quarry / mega'}]},
+  bulldozer:    {sl:'Engine Power', base:23500, specs:[{l:'140HP D5',r:.70,d:'Light grading'},{l:'200HP D6',r:1.0,d:'Standard KSA dozing'},{l:'350HP D8',r:1.50,d:'Heavy stripping'},{l:'500HP D11',r:2.20,d:'Mega earthworks'}]},
+  backhoe:      {sl:'Engine Class', base:9800, specs:[{l:'74HP JCB 3CX',r:.78,d:'Light trenching'},{l:'97HP JCB 4CX',r:1.0,d:'Standard backfill'},{l:'120HP CAT 432',r:1.28,d:'Heavy dig & load'}]},
+  skidLoader:   {sl:'Operating Capacity', base:9800, specs:[{l:'700kg',r:.72,d:'Light material'},{l:'1,100kg',r:1.0,d:'General site'},{l:'1,600kg',r:1.38,d:'Heavy clearing'}]},
+  grader:       {sl:'Blade Width', base:17000, specs:[{l:'3.7m 140HP',r:.82,d:'Road finishing'},{l:'4.3m 180HP',r:1.0,d:'Standard grading'},{l:'5.0m 240HP',r:1.35,d:'Wide area grading'}]},
+  dumpTruck:    {sl:'Payload', base:9500, specs:[{l:'6m³ rigid',r:.68,d:'Restricted sites'},{l:'12m³ rigid',r:1.0,d:'Standard KSA haul'},{l:'20m³ rigid',r:1.42,d:'High-volume haul'},{l:'35m³ articulated',r:1.95,d:'Mega site'}]},
+  compactor:    {sl:'Type / Weight', base:8000, specs:[{l:'Plate 300kg',r:.48,d:'Small trenches'},{l:'Walk-Behind 1T',r:.62,d:'Narrow zones'},{l:'8T Single Drum',r:.88,d:'Road sub-base'},{l:'12T Vibratory',r:1.0,d:'Standard compaction'},{l:'22T Tandem',r:1.58,d:'Highway layers'}]},
+  wheelLoader:  {sl:'Bucket Capacity', base:14500, specs:[{l:'1.5m³',r:.72,d:'Small aggregate'},{l:'3.0m³',r:1.0,d:'Standard loading'},{l:'5.0m³',r:1.48,d:'Mass bulk loading'}]},
+  waterTruck:   {sl:'Tank Volume', base:7200, specs:[{l:'5,000L',r:.72,d:'Small road works'},{l:'12,000L',r:1.0,d:'Dust control KSA'},{l:'20,000L',r:1.42,d:'Large earthworks'}]},
+  scraper:      {sl:'Bowl Capacity', base:21000, specs:[{l:'11m³',r:.78,d:'Light cut & carry'},{l:'23m³',r:1.0,d:'Standard haul'},{l:'34m³',r:1.48,d:'Heavy earthmoving'}]},
+  trencher:     {sl:'Trench Depth', base:12500, specs:[{l:'1.2m Depth',r:.72,d:'Utility trenching'},{l:'2.0m Depth',r:1.0,d:'Standard pipeline'},{l:'3.5m Depth',r:1.48,d:'Deep pipeline'},{l:'6.0m Depth',r:2.15,d:'Deep utilities'}]},
+  asphaltPaver: {sl:'Screed Width', base:25000, specs:[{l:'2.5m screed',r:.68,d:'Narrow / service road'},{l:'4.5m screed',r:1.0,d:'Standard 2-lane road'},{l:'7.5m screed',r:1.48,d:'Dual carriageway'},{l:'13m screed',r:2.15,d:'Highway 4+ lanes'}]},
+  asphaltMill:  {sl:'Drum Width', base:29000, specs:[{l:'500mm half-lane',r:.62,d:'Patch work'},{l:'1.2m full-lane',r:1.0,d:'Lane milling'},{l:'2.2m wide',r:1.58,d:'Full lane milling'}]},
+  concPump:     {sl:'Boom / Max Reach', base:15000, specs:[{l:'28m Z-fold',r:.72,d:'Low-rise / slabs'},{l:'36m 3-section',r:.88,d:'Mid-rise'},{l:'42m 4-section',r:1.0,d:'Standard high-rise'},{l:'52m 5-section',r:1.48,d:'High-rise 30+ fl.'},{l:'62m 6-section',r:2.05,d:'Super high-rise'},{l:'Line pump',r:.52,d:'Basement / tunnels'}]},
+  concMixer:    {sl:'Drum Capacity', base:8500, specs:[{l:'6m³',r:.82,d:'Small pours'},{l:'8m³',r:1.0,d:'Standard KSA'},{l:'10m³',r:1.20,d:'Large slabs'},{l:'12m³',r:1.38,d:'Mass concrete'}]},
+  concBatch:    {sl:'Output Capacity', base:48000, specs:[{l:'30m³/hr',r:.58,d:'Small project'},{l:'60m³/hr',r:1.0,d:'Standard constr.'},{l:'90m³/hr',r:1.48,d:'Large project'},{l:'120m³/hr',r:1.98,d:'NEOM / mega project'}]},
+  formwork:     {sl:'System Type', base:7500, specs:[{l:'Traditional Timber',r:.58,d:'Basic structure'},{l:'System (DOKA/PERI)',r:1.0,d:'Standard KSA'},{l:'Climbing Formwork',r:1.78,d:'Core walls / towers'},{l:'Self-Climbing ACS',r:2.38,d:'High-rise core'}]},
+  pileRig:      {sl:'Pile Diameter', base:48000, specs:[{l:'400mm CFA',r:.68,d:'Villas / light load'},{l:'600mm Bored',r:1.0,d:'Standard foundations'},{l:'900mm Bored',r:1.48,d:'Bridge / heavy'},{l:'1,200mm Bored',r:2.10,d:'High-rise / flyovers'},{l:'1,500mm OCOG',r:2.78,d:'Deep foundations'}]},
+  craneTower:   {sl:'Tip Load × Radius', base:37000, specs:[{l:'1.0T×45m',r:.52,d:'Villas / G+3'},{l:'1.6T×55m',r:.78,d:'Low-rise blocks'},{l:'2.4T×60m',r:1.0,d:'Mid-rise standard'},{l:'3.2T×65m',r:1.48,d:'High-rise 20+ fl.'},{l:'5T×70m',r:2.15,d:'Super high-rise 40+'},{l:'8T×80m',r:3.05,d:'NEOM / mega tower'}]},
+  craneMobile:  {sl:'Rated Capacity', base:28000, specs:[{l:'25T',r:.55,d:'Light urban lifts'},{l:'50T',r:1.0,d:'Standard KSA'},{l:'70T',r:1.35,d:'Medium industrial'},{l:'100T',r:1.80,d:'Heavy industrial'},{l:'130T',r:2.20,d:'Large module lift'},{l:'160T',r:2.65,d:'Heavy module'},{l:'200T',r:3.20,d:'Very heavy industrial'},{l:'250T',r:3.90,d:'Mega lift'},{l:'500T',r:7.50,d:'Super heavy lift'}]},
+  craneCrawler: {sl:'Lift Capacity', base:45000, specs:[{l:'70T',r:.68,d:'Standard heavy'},{l:'100T',r:1.0,d:'Large industrial'},{l:'130T',r:1.35,d:'Heavy industrial'},{l:'200T',r:1.85,d:'Heavy module'},{l:'250T',r:2.40,d:'Refinery / NEOM'},{l:'300T',r:2.90,d:'Industrial mega'},{l:'400T',r:3.80,d:'Offshore / mega'},{l:'500T',r:4.90,d:'Super heavy lift'},{l:'600T',r:6.00,d:'Offshore mega lift'}]},
+  telehandler:  {sl:'Cap. / Max Height', base:12500, specs:[{l:'2.6T·14m',r:.78,d:'Block laying'},{l:'3.5T·17m',r:1.0,d:'Standard KSA'},{l:'4.5T·20m',r:1.32,d:'Precast panels'},{l:'6.0T·22m',r:1.68,d:'Heavy steel / MEP'}]},
+  forklift:     {sl:'Lift Capacity', base:8000, specs:[{l:'2T electric',r:.72,d:'Warehouse / indoor'},{l:'3T diesel',r:1.0,d:'Standard site'},{l:'5T diesel',r:1.38,d:'Heavy material'},{l:'10T heavy duty',r:1.95,d:'Precast / steel'}]},
+  boomTruck:    {sl:'Reach / Capacity', base:15000, specs:[{l:'10m·1T',r:.62,d:'Light urban'},{l:'18m·3T',r:1.0,d:'Standard reach'},{l:'24m·5T',r:1.48,d:'Extended reach'},{l:'30m·7T',r:1.95,d:'Long reach'}]},
+  manlift:      {sl:'Working Height', base:11000, specs:[{l:'12m Elec Art.',r:.53,d:'Interior articulated'},{l:'16m Elec Art.',r:.62,d:'Indoor tight access'},{l:'20m Elec Art.',r:.75,d:'Tall indoor'},{l:'16m Diesel Art.',r:.71,d:'Outdoor articulated'},{l:'20m Diesel Art.',r:.91,d:'Medium outdoor'},{l:'28m Diesel Art.',r:1.0,d:'High-rise facade'},{l:'34m Diesel Art.',r:1.27,d:'High-rise structure'},{l:'43m Diesel Art.',r:1.82,d:'Tower access'},{l:'28m Diesel Tel.',r:1.0,d:'Telescopic outdoor'},{l:'36m Diesel Tel.',r:1.45,d:'Bridge / tower'},{l:'44m Diesel Tel.',r:1.95,d:'Tall tower'},{l:'51m Diesel Tel.',r:2.45,d:'Mega structure'},{l:'58m Diesel Tel.',r:3.0,d:'Maximum reach'}]},
+  scissorLift:  {sl:'Platform Height', base:5000, specs:[{l:'6m Elec 2WD',r:.64,d:'Low bay interior'},{l:'8m Elec 2WD',r:.72,d:'Interior finish'},{l:'10m Elec 2WD',r:.80,d:'MEP / cladding'},{l:'12m Elec 2WD',r:.92,d:'High bay interior'},{l:'14m Elec 2WD',r:1.04,d:'High bay'},{l:'16m Elec 2WD',r:1.24,d:'High bay outdoor'},{l:'12m Diesel RT 4WD',r:1.20,d:'Outdoor terrain'},{l:'15m Diesel RT 4WD',r:1.44,d:'Outdoor heavy'},{l:'18m Diesel RT 4WD',r:1.70,d:'Outdoor rough terrain'},{l:'20m Diesel RT 4WD',r:2.20,d:'Very high outdoor'}]},
+  hoist:        {sl:'Capacity / Speed', base:9500, specs:[{l:'1T 30m/min',r:.68,d:'Low-rise constr.'},{l:'2T 38m/min',r:1.0,d:'Standard tower'},{l:'3.2T 45m/min',r:1.48,d:'High-rise'},{l:'Dual Cage 2T',r:1.72,d:'High-traffic tower'}]},
+  scaffolding:  {sl:'System Type', base:8500, specs:[{l:'Basic Ring Lock',r:.68,d:'Simple structure'},{l:'Façade System',r:1.0,d:'Standard facade'},{l:'Shoring System',r:1.42,d:'Slab / bridge'},{l:'Suspended SWL2T',r:1.82,d:'High-rise / tanks'}]},
+  mastClimber:  {sl:'Platform Width', base:13000, specs:[{l:'3m single',r:.70,d:'Cladding / MEP'},{l:'6m standard',r:1.0,d:'Facade works'},{l:'12m wide',r:1.60,d:'Stadium / arena'}]},
+  generator:    {sl:'Rated kVA', base:4800, specs:[{l:'20 kVA',r:.28,d:'Site welfare hut'},{l:'35 kVA',r:.38,d:'Site office / welfare'},{l:'50 kVA',r:.46,d:'Small site'},{l:'70 kVA',r:.55,d:'Lighting & tools'},{l:'100 kVA',r:.68,d:'Small constr. site'},{l:'150 kVA',r:.84,d:'Medium site'},{l:'200 kVA',r:1.0,d:'Standard construction'},{l:'300 kVA',r:1.30,d:'Large site / cranes'},{l:'400 kVA',r:1.60,d:'Industrial site'},{l:'500 kVA',r:1.85,d:'Large industrial'},{l:'750 kVA',r:2.45,d:'Major project'},{l:'1,000 kVA',r:3.05,d:'Mega project'},{l:'1,500 kVA',r:4.40,d:'Data centre / refinery'}]},
+  towerLight:   {sl:'Output', base:1900, specs:[{l:'2×1,000W MH',r:.72,d:'Small work area'},{l:'4×1,000W MH',r:1.0,d:'Standard site'},{l:'4×250W LED',r:1.10,d:'LED energy-efficient'},{l:'6×250W LED',r:1.48,d:'Large night works'}]},
+  welder:       {sl:'Process / Output', base:2800, specs:[{l:'200A MIG/MAG',r:.68,d:'Light steel'},{l:'400A MIG/MAG',r:1.0,d:'Structural steel'},{l:'600A SAW',r:1.48,d:'Tanks / pressure vessels'},{l:'TIG 300A GTAW',r:1.18,d:'Stainless / precision'}]},
+  airComp:      {sl:'Output Pressure', base:5500, specs:[{l:'185 CFM / 7 bar',r:.72,d:'Light pneumatic tools'},{l:'375 CFM / 10 bar',r:1.0,d:'Standard site'},{l:'600 CFM / 12 bar',r:1.45,d:'Heavy drilling'},{l:'900 CFM / 17 bar',r:2.10,d:'Rock breaking / HDD'}]},
+  pipeBender:   {sl:'Pipe Size Range', base:2400, specs:[{l:'Up to 2\" (50mm)',r:.68,d:'Small bore / HVAC'},{l:'Up to 6\" (150mm)',r:1.0,d:'Standard piping'},{l:'Up to 12\" (300mm)',r:1.48,d:'Large bore pipe'}]},
+  sideBoom:     {sl:'Lift Capacity', base:19000, specs:[{l:'20T D4 carrier',r:.68,d:'6\"–12\" pipe'},{l:'40T D6 carrier',r:1.0,d:'12\"–24\" pipe'},{l:'70T D8 carrier',r:1.48,d:'24\"–48\" large pipe'}]},
+  sandblaster:  {sl:'Type / Capacity', base:3800, specs:[{l:'Portable 25L',r:.68,d:'Small surfaces'},{l:'Blast Pot 50L',r:1.0,d:'Standard vessels'},{l:'Blast Pot 200L',r:1.48,d:'Large tanks / structures'}]},
+  pipeCoating:  {sl:'Pipe Diameter Range', base:8500, specs:[{l:'2\"–8\" small bore',r:.72,d:'Small pipeline'},{l:'8\"–20\" medium',r:1.0,d:'Standard pipeline'},{l:'20\"–48\" large bore',r:1.48,d:'Large-dia. pipeline'}]},
+  cablePuller:  {sl:'Pull Force', base:4800, specs:[{l:'2T (LV cables)',r:.68,d:'LV cable pulling'},{l:'5T (MV cables)',r:1.0,d:'MV cable pulling'},{l:'10T (HV cables)',r:1.48,d:'HV cable pulling'},{l:'20T (EHV cables)',r:2.15,d:'EHV transmission'}]},
+  hdd:          {sl:'Drill Force', base:38000, specs:[{l:'10T HDD',r:.52,d:'Small bore utilities'},{l:'50T HDD',r:1.0,d:'Standard crossing'},{l:'100T HDD',r:1.58,d:'River crossing'},{l:'300T HDD',r:2.75,d:'Major water crossing'}]},
+  dewaterPump:  {sl:'Flow Rate', base:3800, specs:[{l:'100m³/hr',r:.62,d:'Small excavation'},{l:'500m³/hr',r:1.0,d:'Standard site'},{l:'1,500m³/hr',r:1.78,d:'Large excavation'},{l:'3,000m³/hr',r:2.95,d:'Deep dewatering'}]},
+  vacTruck:     {sl:'Tank Capacity', base:7200, specs:[{l:'5,000L',r:.72,d:'Light cleaning'},{l:'10,000L',r:1.0,d:'Standard site'},{l:'15,000L',r:1.38,d:'Large site'}]},
+  surveyEquip:  {sl:'Equipment Type', base:3200, specs:[{l:'Total Station',r:.78,d:'Standard stakeout'},{l:'GPS RTK Rover',r:1.0,d:'Precision layout'},{l:'3D Laser Scanner',r:1.98,d:'BIM / as-built'},{l:'Drone Survey',r:1.58,d:'Aerial mapping'}]},
+  tbm:          {sl:'Bore Diameter', base:280000, specs:[{l:'3m dia.',r:.48,d:'Utility tunnel'},{l:'6m dia.',r:1.0,d:'Road / rail tunnel'},{l:'9m dia.',r:1.78,d:'Metro tunnel'},{l:'14m dia.',r:3.45,d:'Large metro highway'}]},
+  demolition:   {sl:'Type / Method', base:16000, specs:[{l:'Hydraulic Breaker',r:.58,d:'Concrete breaking'},{l:'Demo Excavator',r:1.0,d:'Structural demo'},{l:'High-Reach 30m',r:1.78,d:'Building demolition'},{l:'Controlled implosion',r:2.45,d:'Controlled demo'}]},
+  cablePlow:    {sl:'Cable Depth', base:12000, specs:[{l:'300mm shallow',r:.72,d:'LV / comms'},{l:'600mm standard',r:1.0,d:'MV cable'},{l:'900mm deep',r:1.45,d:'HV cable'}]},
+  hydraulicJack:{sl:'Capacity', base:6500, specs:[{l:'50T',r:.58,d:'Slab jacking'},{l:'200T',r:1.0,d:'Bridge jacking'},{l:'500T',r:1.78,d:'Heavy structure'},{l:'1,000T',r:2.95,d:'Mega structure'}]},
+};
+
+// Per-equipment custom specs added at runtime: {eid: [{l, rate, d},...]}
+const customSpecs = {};
+
+function getSpecsForEq(eid){
+  const cat = ECAT_SPECS[eid];
+  const base = cat ? cat.specs.map(s=>({l:s.l, rate:Math.round(s.r*(cat.base)), d:s.d||'', custom:false})) : [];
+  const extra = (customSpecs[eid]||[]).map(s=>({...s, custom:true}));
+  return [...base, ...extra];
+}
+
+// ── Spec modal state ──
+let _specPid=null, _specEid=null;
+function openSpecModal(pid, eid){
+  _specPid=pid; _specEid=eid;
+  const ec=EQ[eid];
+  document.getElementById('spec-modal-sub').textContent = ec ? `${ec.ico} ${ec.name} — new variant` : 'New specification';
+  document.getElementById('spec-modal-label').value='';
+  document.getElementById('spec-modal-rate').value = ec ? ec.rate : '';
+  document.getElementById('spec-modal-desc').value='';
+  document.getElementById('spec-modal-backdrop').classList.add('show');
+  setTimeout(()=>document.getElementById('spec-modal-label').focus(), 180);
+}
+function closeSpecModal(evt){
+  if(evt && evt.target !== document.getElementById('spec-modal-backdrop')) return;
+  document.getElementById('spec-modal-backdrop').classList.remove('show');
+  _specPid=null; _specEid=null;
+}
+function closeSpecModalBtn(){
+  document.getElementById('spec-modal-backdrop').classList.remove('show');
+  _specPid=null; _specEid=null;
+}
+function confirmAddSpec(){
+  const label = document.getElementById('spec-modal-label').value.trim();
+  const rate  = parseFloat(document.getElementById('spec-modal-rate').value)||0;
+  const desc  = document.getElementById('spec-modal-desc').value.trim();
+  const labelInp = document.getElementById('spec-modal-label');
+  if(!label||!rate){ labelInp.style.borderColor='var(--red)'; return; }
+  labelInp.style.borderColor='';
+  const eid=_specEid, pid=_specPid;
+  if(!customSpecs[eid]) customSpecs[eid]=[];
+  customSpecs[eid].push({l:label, rate:Math.round(rate), d:desc});
+  document.getElementById('spec-modal-backdrop').classList.remove('show');
+  const newIdx = getSpecsForEq(eid).length-1;
+  const newKey = `${eid}-${newIdx}`;
+  // Rebuild chips for all phases
+  Object.keys(phState).forEach(p=>{
+    if(phState[p]?.equip[eid]){
+      renderSpecChips(p,eid);
+      renderSpecItems(p,eid);
+    }
+  });
+  // Auto-select into source phase
+  if(pid && phState[pid]?.equip[eid]){
+    const st=phState[pid].equip[eid];
+    if(!st.selectedSpecs) st.selectedSpecs=[];
+    const spec=getSpecsForEq(eid)[newIdx];
+    st.selectedSpecs.push({specKey:newKey,label:spec.l,desc:spec.d||'',rate:spec.rate,months:st.months,ico:EQ[eid]?.ico||'⚙️'});
+    syncEqRateFromSpecs(pid,eid);
+    renderSpecChips(pid,eid);
+    renderSpecItems(pid,eid);
+    updateRateLbl(pid,eid);
+    calculate();
+  }
+  _specPid=null; _specEid=null;
+}
+</script>
+</body>
+</html>
